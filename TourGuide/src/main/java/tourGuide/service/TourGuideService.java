@@ -2,6 +2,7 @@ package tourGuide.service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -90,6 +91,21 @@ public class TourGuideService {
 		user.addToVisitedLocations(visitedLocation);
 		rewardsService.calculateRewards(user);
 		return visitedLocation;
+	}
+
+	/**
+	 * Get a list of every user's most recent location
+	 * 
+	 * @return List : mapping of userId to Locations
+	 */
+	public Map<String, Location> getAllCurrentLocations() {
+		Map<String, Location> usersLocationMap = new HashMap<>();
+		for (User user : getAllUsers()) {
+			String userInfo = user.getUserId().toString();
+			VisitedLocation recentLocation = getUserLocation(user);
+			usersLocationMap.put(userInfo, recentLocation.location);
+		}
+		return usersLocationMap;
 	}
 
 	/**
