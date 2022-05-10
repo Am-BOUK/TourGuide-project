@@ -2,12 +2,13 @@ package tourGuide.service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -91,21 +92,79 @@ public class TourGuideService {
 		return visitedLocation;
 	}
 
-	public List<Attraction> getNearByAttractions(VisitedLocation visitedLocation) {
-		Double distance = 0.0;
-		List<Attraction> nearbyAttractions = new ArrayList<>();
-		TreeMap<Double, Attraction> treeMapAttraction = new TreeMap<Double, Attraction>();
+	/**
+	 * Get the closest five tourist attractions to the user *** this method allows
+	 * to return a list of closest five attractions to the giving user that
+	 * contains: Name of Tourist attraction, Tourist attractions lat/long, The
+	 * user's location lat/long, The distance in miles between the user's location
+	 * and each of the attractions and the reward points for visiting each
+	 * Attraction (attraction reward points will be gathered from RewardsCentral)
+	 * 
+	 * @param visitedLocation : the VisitedLocation object.
+	 * @return Map : the closest attraction list to the user.
+	 */
+	public Map<String, Map<String, Double>> getNearByAttractions(VisitedLocation visitedLocation) {
+		User user = getUserByUUID(visitedLocation.userId);
+		logger.info("Get the closest five tourist attractions to the user : " + user.getUserName());
 
+		Double distance = 0.0;
+
+		Map<Double, Attraction> mapNearbyAttractions = new HashMap<>();
+
+		// calculate the distance between the user's location and each of the
+		// attractions, then fill in our map
 		for (Attraction attraction : gpsUtil.getAttractions()) {
 			distance = rewardsService.getDistance(attraction, visitedLocation.location);
-			treeMapAttraction.put(distance, attraction);
+			mapNearbyAttractions.put(distance, attraction);
 		}
 
-		treeMapAttraction.forEach((key, value) -> {
-			nearbyAttractions.add(treeMapAttraction.get(key));
-		});
+		// sort attractions in descending order of distances
+		TreeMap<Double, Attraction> treeMapDistanceWithAttraction = new TreeMap<>(mapNearbyAttractions);
 
-		return nearbyAttractions.subList(0, 5);
+		// retrieve ordered keys
+		Set<Double> distanceSortedList = treeMapDistanceWithAttraction.keySet();
+		Iterator<Double> iteratorDistance = distanceSortedList.iterator();
+		Map<Double, Attraction> nearbyAttractionsList = new HashMap<>();
+		Map<String, Map<String, Double>> nearbyAttractionsMap = new HashMap<>();
+		Attraction sortedAttraction;
+		int i = 0;
+		while (i < 5 && iteratorDistance.hasNext()) {
+			Double distanceAttraction = iteratorDistance.next();
+			System.out.println(
+					distanceAttraction + ":" + treeMapDistanceWithAttraction.get(distanceAttraction).attractionName);
+			sortedAttraction = treeMapDistanceWithAttraction.get(distanceAttraction);
+			nearbyAttractionsList.put(distanceAttraction, sortedAttraction);
+
+			String attractionName = "Attraction name : "
+					+ treeMapDistanceWithAttraction.get(distanceAttraction).attractionName;
+			Map<String, Double> nearbyAttractionsMapList = new HashMap<String, Double>();
+
+			nearbyAttractionsMapList.put("Attraction latitude ",
+					treeMapDistanceWithAttraction.get(distanceAttraction).latitude);
+			nearbyAttractionsMapList.put("Attraction longitude ",
+					treeMapDistanceWithAttraction.get(distanceAttraction).longitude);
+			nearbyAttractionsMapList.put("User latitude ", visitedLocation.location.latitude);
+			nearbyAttractionsMapList.put("User longitude ", visitedLocation.location.longitude);
+			nearbyAttractionsMapList.put("Distance User_Attraction in miles", rewardsService
+					.getDistance(visitedLocation.location, treeMapDistanceWithAttraction.get(distanceAttraction)));
+			nearbyAttractionsMapList.put("Reward points", Double.valueOf(
+					rewardsService.getRewardPoints(treeMapDistanceWithAttraction.get(distanceAttraction), user)));
+
+			nearbyAttractionsMap.put(attractionName, nearbyAttractionsMapList);
+			i++;
+		}
+
+		return nearbyAttractionsMap;
+	}
+
+	/**
+	 * Get User Object by his UUID
+	 * 
+	 * @param UUID : the userId
+	 * @return Object : user
+	 */
+	public User getUserByUUID(UUID userId) {
+		return internalUserMap.values().stream().filter(user -> user.getUserId().equals(userId)).findFirst().get();
 	}
 
 	private void addShutDownHook() {
