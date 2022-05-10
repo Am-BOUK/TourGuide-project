@@ -3,6 +3,8 @@ package tourGuide;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,6 +25,7 @@ import tripPricer.Provider;
  */
 @RestController
 public class TourGuideController {
+	private Logger logger = LoggerFactory.getLogger(TourGuideController.class);
 
 	/**
 	 * Inject TourGuide service
@@ -30,8 +33,14 @@ public class TourGuideController {
 	@Autowired
 	TourGuideService tourGuideService;
 
+	/**
+	 * Get home page endpoint
+	 * 
+	 * @return String : Greetings from TourGuide!
+	 */
 	@RequestMapping("/")
 	public String index() {
+		logger.info("Get home page endpoint");
 		return "Greetings from TourGuide!";
 	}
 
@@ -43,6 +52,7 @@ public class TourGuideController {
 	 */
 	@RequestMapping("/getLocation")
 	public String getLocation(@RequestParam String userName) {
+		logger.info("Get user's location */getLocation* of the user : " + userName);
 		VisitedLocation visitedLocation = tourGuideService.getUserLocation(getUser(userName));
 		return JsonStream.serialize(visitedLocation.location);
 	}
@@ -56,6 +66,7 @@ public class TourGuideController {
 	 */
 	@RequestMapping("/getNearbyAttractions")
 	public String getNearbyAttractions(@RequestParam String userName) {
+		logger.info("Get the closest five tourist attractions */getNearbyAttractions* of the user : " + userName);
 		VisitedLocation visitedLocation = tourGuideService.getUserLocation(getUser(userName));
 //    	return tourGuideService.getNearByAttractions(visitedLocation);
 		return JsonStream.serialize(tourGuideService.getNearByAttractions(visitedLocation));
@@ -67,8 +78,9 @@ public class TourGuideController {
 	 * @param userName : the userName of the user we want to get his rewards
 	 * @return String : a JSON mapping of rewards of the user
 	 */
-	@RequestMapping("/getRewards") //vide!!!
+	@RequestMapping("/getRewards") // vide!!!
 	public String getRewards(@RequestParam String userName) {
+		logger.info("Get rewards */getRewards* of the user : " + userName);
 		return JsonStream.serialize(tourGuideService.getUserRewards(getUser(userName)));
 	}
 
@@ -79,19 +91,21 @@ public class TourGuideController {
 	 */
 	@RequestMapping("/getAllCurrentLocations")
 	public String getAllCurrentLocations() {
+		logger.info("Get a list of every user's most recent location */getAllCurrentLocations*");
 		Map<String, Location> getAllCurrentLocations = tourGuideService.getAllCurrentLocations();
 		return JsonStream.serialize(getAllCurrentLocations);
 //		return getAllCurrentLocations;
 	}
-	
+
 	/**
-	 * Get trip deals of the user  endpoint as JSON
+	 * Get trip deals of the user endpoint as JSON
 	 * 
 	 * @param userName : the userName of the user we want to get his trip deals
 	 * @return String : a JSON mapping of trip deals of the user
 	 */
 	@RequestMapping("/getTripDeals")
 	public String getTripDeals(@RequestParam String userName) {
+		logger.info("Get trip deals */getTripDeals* of the user : " + userName);
 		List<Provider> providers = tourGuideService.getTripDeals(getUser(userName));
 		return JsonStream.serialize(providers);
 	}

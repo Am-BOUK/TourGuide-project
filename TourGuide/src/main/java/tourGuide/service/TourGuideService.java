@@ -2,7 +2,6 @@ package tourGuide.service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -39,6 +38,12 @@ public class TourGuideService {
 	public final Tracker tracker;
 	boolean testMode = true;
 
+	/**
+	 * configuration service test
+	 * 
+	 * @param gpsUtil
+	 * @param rewardsService
+	 */
 	public TourGuideService(GpsUtil gpsUtil, RewardsService rewardsService) {
 		this.gpsUtil = gpsUtil;
 		this.rewardsService = rewardsService;
@@ -53,31 +58,78 @@ public class TourGuideService {
 		addShutDownHook();
 	}
 
+	/**
+	 * Get list of rewards of the giving user
+	 * 
+	 * @param user : the user Object
+	 * @return list : the list of user's rewards
+	 */
 	public List<UserReward> getUserRewards(User user) {
+		logger.info("Get list of rewards of the user : " + user.getUserName());
 		return user.getUserRewards();
 	}
 
+	/**
+	 * Get last visited location of the giving user
+	 * 
+	 * @param user : the user object
+	 * @return VisitedLocation : the last visited location or track location of the
+	 *         user
+	 */
 	public VisitedLocation getUserLocation(User user) {
+		logger.info("Get last visited location of the user : " + user.getUserName());
 		VisitedLocation visitedLocation = (user.getVisitedLocations().size() > 0) ? user.getLastVisitedLocation()
 				: trackUserLocation(user);
 		return visitedLocation;
 	}
 
+	/**
+	 * Get user object by userName
+	 * 
+	 * @param userName : the user name of the user we want to get
+	 * @return User : the user object
+	 */
 	public User getUser(String userName) {
+		logger.info("Get user object of the username : " + userName);
 		return internalUserMap.get(userName);
 	}
 
+	/**
+	 * get list of all users
+	 * 
+	 * @return List : the users list
+	 */
 	public List<User> getAllUsers() {
+		logger.info("Get list of all users");
 		return internalUserMap.values().stream().collect(Collectors.toList());
 	}
 
+	/**
+	 * Add a new user ** This operation allows to check if the userName of the user
+	 * we want to add already exists in the database, then allows to add it
+	 * 
+	 *
+	 * @param user : user object to add
+	 */
 	public void addUser(User user) {
+		logger.info("Add a new user : " + user.getUserName());
 		if (!internalUserMap.containsKey(user.getUserName())) {
 			internalUserMap.put(user.getUserName(), user);
 		}
 	}
 
+	/**
+	 * get trip deals of the giving user. *** this method first allows to accumulate
+	 * the reward points earned by the giving user, then allows to obtain a list of
+	 * travel offers / trip deals based on the price of the trip, the user ID, the
+	 * number of adults, the number of children, the duration of the trip and the
+	 * cumulative reward points that have already been calculated
+	 * 
+	 * @param user : the user object we want to get his trip deals list.
+	 * @return List : trip deals list of the user.
+	 */
 	public List<Provider> getTripDeals(User user) {
+		logger.info("Get trip deals of the user : " + user.getUserName());
 		int cumulatativeRewardPoints = user.getUserRewards().stream().mapToInt(i -> i.getRewardPoints()).sum();
 		List<Provider> providers = tripPricer.getPrice(tripPricerApiKey, user.getUserId(),
 				user.getUserPreferences().getNumberOfAdults(), user.getUserPreferences().getNumberOfChildren(),
@@ -86,7 +138,14 @@ public class TourGuideService {
 		return providers;
 	}
 
+	/**
+	 * track the location of a given user
+	 * 
+	 * @param user
+	 * @return VisitedLocation
+	 */
 	public VisitedLocation trackUserLocation(User user) {
+		logger.info("track the location of the user : " + user.getUserName());
 		VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
 		user.addToVisitedLocations(visitedLocation);
 		rewardsService.calculateRewards(user);
@@ -99,6 +158,7 @@ public class TourGuideService {
 	 * @return List : mapping of userId to Locations
 	 */
 	public Map<String, Location> getAllCurrentLocations() {
+		logger.info("Get a list of every user's most recent location");
 		Map<String, Location> usersLocationMap = new HashMap<>();
 		for (User user : getAllUsers()) {
 			String userInfo = user.getUserId().toString();
@@ -180,9 +240,14 @@ public class TourGuideService {
 	 * @return Object : user
 	 */
 	public User getUserByUUID(UUID userId) {
+		logger.info("Get the User Object by his UUID : " + userId);
 		return internalUserMap.values().stream().filter(user -> user.getUserId().equals(userId)).findFirst().get();
 	}
 
+	/**
+	 * Add a shut down hook for stopping the Tracker thread before shutting down the
+	 * JVM
+	 */
 	private void addShutDownHook() {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
@@ -214,6 +279,11 @@ public class TourGuideService {
 		logger.debug("Created " + InternalTestHelper.getInternalUserNumber() + " internal test users.");
 	}
 
+	/**
+	 * Generate a user location history of 3 visited locations for the current user
+	 * 
+	 * @param user
+	 */
 	private void generateUserLocationHistory(User user) {
 		IntStream.range(0, 3).forEach(i -> {
 			user.addToVisitedLocations(new VisitedLocation(user.getUserId(),
@@ -221,18 +291,33 @@ public class TourGuideService {
 		});
 	}
 
+	/**
+	 * Generate a random Longitude
+	 * 
+	 * @return double of longitude
+	 */
 	private double generateRandomLongitude() {
 		double leftLimit = -180;
 		double rightLimit = 180;
 		return leftLimit + new Random().nextDouble() * (rightLimit - leftLimit);
 	}
 
+	/**
+	 * Generate a random latitude
+	 * 
+	 * @return double of latitude
+	 */
 	private double generateRandomLatitude() {
 		double leftLimit = -85.05112878;
 		double rightLimit = 85.05112878;
 		return leftLimit + new Random().nextDouble() * (rightLimit - leftLimit);
 	}
 
+	/**
+	 * Generate a random LocalDateTime
+	 * 
+	 * @return Date of a random time
+	 */
 	private Date getRandomTime() {
 		LocalDateTime localDateTime = LocalDateTime.now().minusDays(new Random().nextInt(30));
 		return Date.from(localDateTime.toInstant(ZoneOffset.UTC));
