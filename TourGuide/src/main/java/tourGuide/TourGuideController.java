@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.jsoniter.output.JsonStream;
 
+import gpsUtil.location.Attraction;
 import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
 import tourGuide.service.TourGuideService;
@@ -68,7 +69,6 @@ public class TourGuideController {
 	public String getNearbyAttractions(@RequestParam String userName) {
 		logger.info("Get the closest five tourist attractions */getNearbyAttractions* of the user : " + userName);
 		VisitedLocation visitedLocation = tourGuideService.getUserLocation(getUser(userName));
-//    	return tourGuideService.getNearByAttractions(visitedLocation);
 		return JsonStream.serialize(tourGuideService.getNearByAttractions(visitedLocation));
 	}
 
