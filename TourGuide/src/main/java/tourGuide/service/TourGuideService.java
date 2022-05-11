@@ -2,6 +2,7 @@ package tourGuide.service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -22,6 +23,7 @@ import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
+import rewardCentral.RewardCentral;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.tracker.Tracker;
 import tourGuide.user.User;
@@ -36,6 +38,7 @@ public class TourGuideService {
 	private final RewardsService rewardsService;
 	private final TripPricer tripPricer = new TripPricer();
 	public final Tracker tracker;
+	private final RewardCentral rewardsCentral = new RewardCentral();
 	boolean testMode = true;
 
 	/**
@@ -180,57 +183,47 @@ public class TourGuideService {
 	 * @return Map : the closest attraction list to the user.
 	 */
 	public Map<String, Map<String, Double>> getNearByAttractions(VisitedLocation visitedLocation) {
-		User user = getUserByUUID(visitedLocation.userId);
-		logger.info("Get the closest five tourist attractions to the user : " + user.getUserName());
-
 		Double distance = 0.0;
-
-		Map<Double, Attraction> mapNearbyAttractions = new HashMap<>();
+		Map<Double, Attraction> mapAttractionsByDistance = new HashMap<>();
+		Map<String, Map<String, Double>> nearbyAttractions = new HashMap<>();
 
 		// calculate the distance between the user's location and each of the
 		// attractions, then fill in our map
 		for (Attraction attraction : gpsUtil.getAttractions()) {
 			distance = rewardsService.getDistance(attraction, visitedLocation.location);
-			mapNearbyAttractions.put(distance, attraction);
+			mapAttractionsByDistance.put(distance, attraction);
 		}
 
-		// sort attractions in descending order of distances
-		TreeMap<Double, Attraction> treeMapDistanceWithAttraction = new TreeMap<>(mapNearbyAttractions);
+		// sort attractions in descending order by distances
+		TreeMap<Double, Attraction> treeMapAttractionSodtedByDistance = new TreeMap<>(mapAttractionsByDistance);
 
 		// retrieve ordered keys
-		Set<Double> distanceSortedList = treeMapDistanceWithAttraction.keySet();
-		Iterator<Double> iteratorDistance = distanceSortedList.iterator();
-		Map<Double, Attraction> nearbyAttractionsList = new HashMap<>();
-		Map<String, Map<String, Double>> nearbyAttractionsMap = new HashMap<>();
-		Attraction sortedAttraction;
-		int i = 0;
-		while (i < 5 && iteratorDistance.hasNext()) {
-			Double distanceAttraction = iteratorDistance.next();
-			System.out.println(
-					distanceAttraction + ":" + treeMapDistanceWithAttraction.get(distanceAttraction).attractionName);
-			sortedAttraction = treeMapDistanceWithAttraction.get(distanceAttraction);
-			nearbyAttractionsList.put(distanceAttraction, sortedAttraction);
+		Set<Double> orderedDistancesKeys = treeMapAttractionSodtedByDistance.keySet();
+		Iterator<Double> iteratorOfOrderedDistancesKeys = orderedDistancesKeys.iterator();
 
-			String attractionName = "Attraction name : "
-					+ treeMapDistanceWithAttraction.get(distanceAttraction).attractionName;
+		int i = 0;
+		while (i < 5 && iteratorOfOrderedDistancesKeys.hasNext()) {
+			Double distanceAttraction = iteratorOfOrderedDistancesKeys.next();
+			System.out.println(distanceAttraction + ":"
+					+ treeMapAttractionSodtedByDistance.get(distanceAttraction).attractionName);
+			Attraction attraction = treeMapAttractionSodtedByDistance.get(distanceAttraction);
+
+			String attractionName = "Attraction name : " + attraction.attractionName;
 			Map<String, Double> nearbyAttractionsMapList = new HashMap<String, Double>();
 
-			nearbyAttractionsMapList.put("Attraction latitude ",
-					treeMapDistanceWithAttraction.get(distanceAttraction).latitude);
-			nearbyAttractionsMapList.put("Attraction longitude ",
-					treeMapDistanceWithAttraction.get(distanceAttraction).longitude);
+			nearbyAttractionsMapList.put("Attraction latitude ", attraction.latitude);
+			nearbyAttractionsMapList.put("Attraction longitude ", attraction.longitude);
 			nearbyAttractionsMapList.put("User latitude ", visitedLocation.location.latitude);
 			nearbyAttractionsMapList.put("User longitude ", visitedLocation.location.longitude);
-			nearbyAttractionsMapList.put("Distance User_Attraction in miles", rewardsService
-					.getDistance(visitedLocation.location, treeMapDistanceWithAttraction.get(distanceAttraction)));
+			nearbyAttractionsMapList.put("Distance User_Attraction in miles", distanceAttraction);
 			nearbyAttractionsMapList.put("Reward points", Double.valueOf(
-					rewardsService.getRewardPoints(treeMapDistanceWithAttraction.get(distanceAttraction), user)));
+					rewardsCentral.getAttractionRewardPoints(attraction.attractionId, visitedLocation.userId)));
 
-			nearbyAttractionsMap.put(attractionName, nearbyAttractionsMapList);
+			nearbyAttractions.put(attractionName, nearbyAttractionsMapList);
 			i++;
 		}
 
-		return nearbyAttractionsMap;
+		return nearbyAttractions;
 	}
 
 	/**
