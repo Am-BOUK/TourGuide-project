@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RewardsService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TourGuide</a> &gt; <a href="index.source.html" class="el_package">tourGuide.service</a> &gt; <span class="el_source">RewardsService.java</span></div><h1>RewardsService.java</h1><pre class="source lang-java linenums">package tourGuide.service;
+
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import gpsUtil.GpsUtil;
+import gpsUtil.location.Attraction;
+import gpsUtil.location.Location;
+import gpsUtil.location.VisitedLocation;
+import rewardCentral.RewardCentral;
+import tourGuide.user.User;
+import tourGuide.user.UserReward;
+
+@Service
+public class RewardsService {
+<span class="nc" id="L19">	private Logger logger = LoggerFactory.getLogger(RewardsService.class);</span>
+	private static final double STATUTE_MILES_PER_NAUTICAL_MILE = 1.15077945;
+
+	// proximity in miles
+<span class="nc" id="L23">	private int defaultProximityBuffer = 10;</span>
+<span class="nc" id="L24">	private int proximityBuffer = defaultProximityBuffer;</span>
+<span class="nc" id="L25">	private int attractionProximityRange = 200;</span>
+	private final GpsUtil gpsUtil;
+	private final RewardCentral rewardsCentral;
+
+<span class="nc" id="L29">	public RewardsService(GpsUtil gpsUtil, RewardCentral rewardCentral) {</span>
+<span class="nc" id="L30">		this.gpsUtil = gpsUtil;</span>
+<span class="nc" id="L31">		this.rewardsCentral = rewardCentral;</span>
+<span class="nc" id="L32">	}</span>
+
+	public void setProximityBuffer(int proximityBuffer) {
+<span class="nc" id="L35">		this.proximityBuffer = proximityBuffer;</span>
+<span class="nc" id="L36">	}</span>
+
+	public void setDefaultProximityBuffer() {
+<span class="nc" id="L39">		proximityBuffer = defaultProximityBuffer;</span>
+<span class="nc" id="L40">	}</span>
+
+	/**
+	 * Add user reward of the giving user. *** this operation allows to Add the
+	 * reward of the giving user if an attraction is visited.
+	 * 
+	 * @param user : the user object
+	 */
+	public void calculateRewards(User user) {
+<span class="nc" id="L49">		logger.info(&quot;Add user reward of the user : &quot; + user.getUserName());</span>
+<span class="nc" id="L50">		List&lt;VisitedLocation&gt; userLocations = user.getVisitedLocations();</span>
+<span class="nc" id="L51">		List&lt;Attraction&gt; attractions = gpsUtil.getAttractions();</span>
+
+<span class="nc bnc" id="L53" title="All 2 branches missed.">		for (int i = 0; i &lt; userLocations.size(); i++) {</span>
+<span class="nc" id="L54">			VisitedLocation visitedLocation = userLocations.get(i);</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">			for (int j = 0; j &lt; attractions.size(); j++) {</span>
+<span class="nc" id="L56">				Attraction attraction = attractions.get(j);</span>
+<span class="nc" id="L57">				if (user.getUserRewards().stream()</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">						.filter(r -&gt; r.attraction.attractionName.equals(attraction.attractionName)).count() == 0) {</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">					if (nearAttraction(visitedLocation, attraction)) {</span>
+<span class="nc" id="L60">						user.addUserReward(</span>
+<span class="nc" id="L61">								new UserReward(visitedLocation, attraction, getRewardPoints(attraction, user)));</span>
+					}
+				}
+			}
+		}
+<span class="nc" id="L66">	}</span>
+
+	/**
+	 * Check if the attraction is near to the location to be visited.
+	 * 
+	 * @param attraction : the attraction object
+	 * @param location   : the location object of the user
+	 * @return boolean : true if the distance is close false otherwise.
+	 */
+	public boolean isWithinAttractionProximity(Attraction attraction, Location location) {
+<span class="nc" id="L76">		logger.info(&quot; Check if the attraction is near to the location &quot;);</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">		return getDistance(attraction, location) &gt; attractionProximityRange ? false : true;</span>
+	}
+
+	/**
+	 * Check if the visited location is near to the attraction to be visited.
+	 * 
+	 * @param visitedLocation : the visitedLocation object
+	 * @param attraction      : the attraction object
+	 * @return boolean : true if the distance is close false otherwise.
+	 */
+	private boolean nearAttraction(VisitedLocation visitedLocation, Attraction attraction) {
+<span class="nc" id="L88">		logger.info(&quot; Check if the visited location is near to the attraction to be visited&quot;);</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">		return getDistance(attraction, visitedLocation.location) &gt; proximityBuffer ? false : true;</span>
+	}
+
+	/**
+	 * get attraction rewards points of the giving user
+	 * 
+	 * @param attraction : the attraction object
+	 * @param user       : the user object
+	 * @return int : the attraction rewards points of the user
+	 */
+	public int getRewardPoints(Attraction attraction, User user) {
+<span class="nc" id="L100">		logger.info(&quot; get attraction rewards points to user : &quot; + user.getUserName());</span>
+<span class="nc" id="L101">		return rewardsCentral.getAttractionRewardPoints(attraction.attractionId, user.getUserId());</span>
+	}
+
+	/**
+	 * Calculate the distance in miles.
+	 * 
+	 * @param loc1 : the user's location
+	 * @param loc2 : the attraction's location
+	 * @return Double : the distance between the two location.
+	 */
+	public double getDistance(Location loc1, Location loc2) {
+<span class="nc" id="L112">		logger.info(&quot; Calculate the distance between two attractions&quot;);</span>
+<span class="nc" id="L113">		double lat1 = Math.toRadians(loc1.latitude);</span>
+<span class="nc" id="L114">		double lon1 = Math.toRadians(loc1.longitude);</span>
+<span class="nc" id="L115">		double lat2 = Math.toRadians(loc2.latitude);</span>
+<span class="nc" id="L116">		double lon2 = Math.toRadians(loc2.longitude);</span>
+
+<span class="nc" id="L118">		double angle = Math</span>
+<span class="nc" id="L119">				.acos(Math.sin(lat1) * Math.sin(lat2) + Math.cos(lat1) * Math.cos(lat2) * Math.cos(lon1 - lon2));</span>
+
+<span class="nc" id="L121">		double nauticalMiles = 60 * Math.toDegrees(angle);</span>
+<span class="nc" id="L122">		double statuteMiles = STATUTE_MILES_PER_NAUTICAL_MILE * nauticalMiles;</span>
+<span class="nc" id="L123">		return statuteMiles;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

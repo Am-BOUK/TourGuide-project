@@ -1,6 +1,10 @@
 package tourGuide.service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +22,7 @@ import tourGuide.user.UserReward;
 public class RewardsService {
 	private Logger logger = LoggerFactory.getLogger(RewardsService.class);
 	private static final double STATUTE_MILES_PER_NAUTICAL_MILE = 1.15077945;
+	private final ExecutorService executor = Executors.newFixedThreadPool(50);
 
 	// proximity in miles
 	private int defaultProximityBuffer = 10;
@@ -46,22 +51,30 @@ public class RewardsService {
 	 * @param user : the user object
 	 */
 	public void calculateRewards(User user) {
-		logger.info("Add user reward of the user : " + user.getUserName());
+//		logger.info("Add user reward of the user : " + user.getUserName());
 		List<VisitedLocation> userLocations = user.getVisitedLocations();
 		List<Attraction> attractions = gpsUtil.getAttractions();
+		List<CompletableFuture> listeCompetable = new ArrayList<>();
 
 		for (int i = 0; i < userLocations.size(); i++) {
 			VisitedLocation visitedLocation = userLocations.get(i);
 			for (int j = 0; j < attractions.size(); j++) {
 				Attraction attraction = attractions.get(j);
-				if (user.getUserRewards().stream()
-						.filter(r -> r.attraction.attractionName.equals(attraction.attractionName)).count() == 0) {
-					if (nearAttraction(visitedLocation, attraction)) {
-						user.addUserReward(
-								new UserReward(visitedLocation, attraction, getRewardPoints(attraction, user)));
+
+				CompletableFuture completableFuture = CompletableFuture.runAsync(() -> {
+					if (user.getUserRewards().stream()
+							.filter(r -> r.attraction.attractionName.equals(attraction.attractionName)).count() == 0) {
+						if (nearAttraction(visitedLocation, attraction)) {
+							user.addUserReward(
+									new UserReward(visitedLocation, attraction, getRewardPoints(attraction, user)));
+
+						}
 					}
-				}
+				}, executor);
+				listeCompetable.add(completableFuture);
 			}
+			CompletableFuture.allOf(listeCompetable.toArray(new CompletableFuture[listeCompetable.size()])).join();
+
 		}
 	}
 
@@ -73,7 +86,7 @@ public class RewardsService {
 	 * @return boolean : true if the distance is close false otherwise.
 	 */
 	public boolean isWithinAttractionProximity(Attraction attraction, Location location) {
-		logger.info(" Check if the attraction is near to the location ");
+//		logger.info(" Check if the attraction is near to the location ");
 		return getDistance(attraction, location) > attractionProximityRange ? false : true;
 	}
 
@@ -85,7 +98,7 @@ public class RewardsService {
 	 * @return boolean : true if the distance is close false otherwise.
 	 */
 	private boolean nearAttraction(VisitedLocation visitedLocation, Attraction attraction) {
-		logger.info(" Check if the visited location is near to the attraction to be visited");
+//		logger.info(" Check if the visited location is near to the attraction to be visited");
 		return getDistance(attraction, visitedLocation.location) > proximityBuffer ? false : true;
 	}
 
@@ -97,7 +110,7 @@ public class RewardsService {
 	 * @return int : the attraction rewards points of the user
 	 */
 	public int getRewardPoints(Attraction attraction, User user) {
-		logger.info(" get attraction rewards points to user : " + user.getUserName());
+//		logger.info(" get attraction rewards points to user : " + user.getUserName());
 		return rewardsCentral.getAttractionRewardPoints(attraction.attractionId, user.getUserId());
 	}
 
@@ -109,7 +122,7 @@ public class RewardsService {
 	 * @return Double : the distance between the two location.
 	 */
 	public double getDistance(Location loc1, Location loc2) {
-		logger.info(" Calculate the distance between two attractions");
+//		logger.info(" Calculate the distance between two attractions");
 		double lat1 = Math.toRadians(loc1.latitude);
 		double lon1 = Math.toRadians(loc1.longitude);
 		double lat2 = Math.toRadians(loc2.latitude);

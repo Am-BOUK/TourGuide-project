@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TourGuideService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">TourGuide</a> &gt; <a href="index.source.html" class="el_package">tourGuide.service</a> &gt; <span class="el_source">TourGuideService.java</span></div><h1>TourGuideService.java</h1><pre class="source lang-java linenums">package tourGuide.service;
+
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import gpsUtil.GpsUtil;
+import gpsUtil.location.Attraction;
+import gpsUtil.location.Location;
+import gpsUtil.location.VisitedLocation;
+import tourGuide.helper.InternalTestHelper;
+import tourGuide.tracker.Tracker;
+import tourGuide.user.User;
+import tourGuide.user.UserReward;
+import tripPricer.Provider;
+import tripPricer.TripPricer;
+
+@Service
+public class TourGuideService {
+<span class="nc" id="L34">	private Logger logger = LoggerFactory.getLogger(TourGuideService.class);</span>
+	private final GpsUtil gpsUtil;
+	private final RewardsService rewardsService;
+<span class="nc" id="L37">	private final TripPricer tripPricer = new TripPricer();</span>
+	public final Tracker tracker;
+<span class="nc" id="L39">	boolean testMode = true;</span>
+
+	/**
+	 * configuration service test
+	 * 
+	 * @param gpsUtil
+	 * @param rewardsService
+	 */
+<span class="nc" id="L47">	public TourGuideService(GpsUtil gpsUtil, RewardsService rewardsService) {</span>
+<span class="nc" id="L48">		this.gpsUtil = gpsUtil;</span>
+<span class="nc" id="L49">		this.rewardsService = rewardsService;</span>
+
+<span class="nc bnc" id="L51" title="All 2 branches missed.">		if (testMode) {</span>
+<span class="nc" id="L52">			logger.info(&quot;TestMode enabled&quot;);</span>
+<span class="nc" id="L53">			logger.debug(&quot;Initializing users&quot;);</span>
+<span class="nc" id="L54">			initializeInternalUsers();</span>
+<span class="nc" id="L55">			logger.debug(&quot;Finished initializing users&quot;);</span>
+		}
+<span class="nc" id="L57">		tracker = new Tracker(this);</span>
+<span class="nc" id="L58">		addShutDownHook();</span>
+<span class="nc" id="L59">	}</span>
+
+	/**
+	 * Get list of rewards of the giving user
+	 * 
+	 * @param user : the user Object
+	 * @return list : the list of user's rewards
+	 */
+	public List&lt;UserReward&gt; getUserRewards(User user) {
+<span class="nc" id="L68">		logger.info(&quot;Get list of rewards of the user : &quot; + user.getUserName());</span>
+<span class="nc" id="L69">		return user.getUserRewards();</span>
+	}
+
+	/**
+	 * Get last visited location of the giving user
+	 * 
+	 * @param user : the user object
+	 * @return VisitedLocation : the last visited location or track location of the
+	 *         user
+	 */
+	public VisitedLocation getUserLocation(User user) {
+<span class="nc" id="L80">		logger.info(&quot;Get last visited location of the user : &quot; + user.getUserName());</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">		VisitedLocation visitedLocation = (user.getVisitedLocations().size() &gt; 0) ? user.getLastVisitedLocation()</span>
+<span class="nc" id="L82">				: trackUserLocation(user);</span>
+<span class="nc" id="L83">		return visitedLocation;</span>
+	}
+
+	/**
+	 * Get user object by userName
+	 * 
+	 * @param userName : the user name of the user we want to get
+	 * @return User : the user object
+	 */
+	public User getUser(String userName) {
+<span class="nc" id="L93">		logger.info(&quot;Get user object of the username : &quot; + userName);</span>
+<span class="nc" id="L94">		return internalUserMap.get(userName);</span>
+	}
+
+	/**
+	 * get list of all users
+	 * 
+	 * @return List : the users list
+	 */
+	public List&lt;User&gt; getAllUsers() {
+<span class="nc" id="L103">		logger.info(&quot;Get list of all users&quot;);</span>
+<span class="nc" id="L104">		return internalUserMap.values().stream().collect(Collectors.toList());</span>
+	}
+
+	/**
+	 * Add a new user ** This operation allows to check if the userName of the user
+	 * we want to add already exists in the database, then allows to add it
+	 * 
+	 *
+	 * @param user : user object to add
+	 */
+	public void addUser(User user) {
+<span class="nc" id="L115">		logger.info(&quot;Add a new user : &quot; + user.getUserName());</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">		if (!internalUserMap.containsKey(user.getUserName())) {</span>
+<span class="nc" id="L117">			internalUserMap.put(user.getUserName(), user);</span>
+		}
+<span class="nc" id="L119">	}</span>
+
+	/**
+	 * get trip deals of the giving user. *** this method first allows to accumulate
+	 * the reward points earned by the giving user, then allows to obtain a list of
+	 * travel offers / trip deals based on the price of the trip, the user ID, the
+	 * number of adults, the number of children, the duration of the trip and the
+	 * cumulative reward points that have already been calculated
+	 * 
+	 * @param user : the user object we want to get his trip deals list.
+	 * @return List : trip deals list of the user.
+	 */
+	public List&lt;Provider&gt; getTripDeals(User user) {
+<span class="nc" id="L132">		logger.info(&quot;Get trip deals of the user : &quot; + user.getUserName());</span>
+<span class="nc" id="L133">		int cumulatativeRewardPoints = user.getUserRewards().stream().mapToInt(i -&gt; i.getRewardPoints()).sum();</span>
+<span class="nc" id="L134">		List&lt;Provider&gt; providers = tripPricer.getPrice(tripPricerApiKey, user.getUserId(),</span>
+<span class="nc" id="L135">				user.getUserPreferences().getNumberOfAdults(), user.getUserPreferences().getNumberOfChildren(),</span>
+<span class="nc" id="L136">				user.getUserPreferences().getTripDuration(), cumulatativeRewardPoints);</span>
+<span class="nc" id="L137">		user.setTripDeals(providers);</span>
+<span class="nc" id="L138">		return providers;</span>
+	}
+
+	/**
+	 * track the location of a given user
+	 * 
+	 * @param user
+	 * @return VisitedLocation
+	 */
+	public VisitedLocation trackUserLocation(User user) {
+<span class="nc" id="L148">		logger.info(&quot;track the location of the user : &quot; + user.getUserName());</span>
+<span class="nc" id="L149">		VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());</span>
+<span class="nc" id="L150">		user.addToVisitedLocations(visitedLocation);</span>
+<span class="nc" id="L151">		rewardsService.calculateRewards(user);</span>
+<span class="nc" id="L152">		return visitedLocation;</span>
+	}
+
+	/**
+	 * Get a list of every user's most recent location
+	 * 
+	 * @return List : mapping of userId to Locations
+	 */
+	public Map&lt;String, Location&gt; getAllCurrentLocations() {
+<span class="nc" id="L161">		logger.info(&quot;Get a list of every user's most recent location&quot;);</span>
+<span class="nc" id="L162">		Map&lt;String, Location&gt; usersLocationMap = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L163" title="All 2 branches missed.">		for (User user : getAllUsers()) {</span>
+<span class="nc" id="L164">			String userInfo = user.getUserId().toString();</span>
+<span class="nc" id="L165">			VisitedLocation recentLocation = getUserLocation(user);</span>
+<span class="nc" id="L166">			usersLocationMap.put(userInfo, recentLocation.location);</span>
+<span class="nc" id="L167">		}</span>
+<span class="nc" id="L168">		return usersLocationMap;</span>
+	}
+
+	/**
+	 * Get the closest five tourist attractions to the user *** this method allows
+	 * to return a list of closest five attractions to the giving user that
+	 * contains: Name of Tourist attraction, Tourist attractions lat/long, The
+	 * user's location lat/long, The distance in miles between the user's location
+	 * and each of the attractions and the reward points for visiting each
+	 * Attraction (attraction reward points will be gathered from RewardsCentral)
+	 * 
+	 * @param visitedLocation : the VisitedLocation object.
+	 * @return Map : the closest attraction list to the user.
+	 */
+	public Map&lt;String, Map&lt;String, Double&gt;&gt; getNearByAttractions(VisitedLocation visitedLocation) {
+<span class="nc" id="L183">		User user = getUserByUUID(visitedLocation.userId);</span>
+<span class="nc" id="L184">		logger.info(&quot;Get the closest five tourist attractions to the user : &quot; + user.getUserName());</span>
+
+<span class="nc" id="L186">		Double distance = 0.0;</span>
+
+<span class="nc" id="L188">		Map&lt;Double, Attraction&gt; mapNearbyAttractions = new HashMap&lt;&gt;();</span>
+
+		// calculate the distance between the user's location and each of the
+		// attractions, then fill in our map
+<span class="nc bnc" id="L192" title="All 2 branches missed.">		for (Attraction attraction : gpsUtil.getAttractions()) {</span>
+<span class="nc" id="L193">			distance = rewardsService.getDistance(attraction, visitedLocation.location);</span>
+<span class="nc" id="L194">			mapNearbyAttractions.put(distance, attraction);</span>
+<span class="nc" id="L195">		}</span>
+
+		// sort attractions in descending order of distances
+<span class="nc" id="L198">		TreeMap&lt;Double, Attraction&gt; treeMapDistanceWithAttraction = new TreeMap&lt;&gt;(mapNearbyAttractions);</span>
+
+		// retrieve ordered keys
+<span class="nc" id="L201">		Set&lt;Double&gt; distanceSortedList = treeMapDistanceWithAttraction.keySet();</span>
+<span class="nc" id="L202">		Iterator&lt;Double&gt; iteratorDistance = distanceSortedList.iterator();</span>
+<span class="nc" id="L203">		Map&lt;Double, Attraction&gt; nearbyAttractionsList = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L204">		Map&lt;String, Map&lt;String, Double&gt;&gt; nearbyAttractionsMap = new HashMap&lt;&gt;();</span>
+		Attraction sortedAttraction;
+<span class="nc" id="L206">		int i = 0;</span>
+<span class="nc bnc" id="L207" title="All 4 branches missed.">		while (i &lt; 5 &amp;&amp; iteratorDistance.hasNext()) {</span>
+<span class="nc" id="L208">			Double distanceAttraction = iteratorDistance.next();</span>
+<span class="nc" id="L209">			System.out.println(</span>
+<span class="nc" id="L210">					distanceAttraction + &quot;:&quot; + treeMapDistanceWithAttraction.get(distanceAttraction).attractionName);</span>
+<span class="nc" id="L211">			sortedAttraction = treeMapDistanceWithAttraction.get(distanceAttraction);</span>
+<span class="nc" id="L212">			nearbyAttractionsList.put(distanceAttraction, sortedAttraction);</span>
+
+<span class="nc" id="L214">			String attractionName = &quot;Attraction name : &quot;</span>
+<span class="nc" id="L215">					+ treeMapDistanceWithAttraction.get(distanceAttraction).attractionName;</span>
+<span class="nc" id="L216">			Map&lt;String, Double&gt; nearbyAttractionsMapList = new HashMap&lt;String, Double&gt;();</span>
+
+<span class="nc" id="L218">			nearbyAttractionsMapList.put(&quot;Attraction latitude &quot;,</span>
+<span class="nc" id="L219">					treeMapDistanceWithAttraction.get(distanceAttraction).latitude);</span>
+<span class="nc" id="L220">			nearbyAttractionsMapList.put(&quot;Attraction longitude &quot;,</span>
+<span class="nc" id="L221">					treeMapDistanceWithAttraction.get(distanceAttraction).longitude);</span>
+<span class="nc" id="L222">			nearbyAttractionsMapList.put(&quot;User latitude &quot;, visitedLocation.location.latitude);</span>
+<span class="nc" id="L223">			nearbyAttractionsMapList.put(&quot;User longitude &quot;, visitedLocation.location.longitude);</span>
+<span class="nc" id="L224">			nearbyAttractionsMapList.put(&quot;Distance User_Attraction in miles&quot;, rewardsService</span>
+<span class="nc" id="L225">					.getDistance(visitedLocation.location, treeMapDistanceWithAttraction.get(distanceAttraction)));</span>
+<span class="nc" id="L226">			nearbyAttractionsMapList.put(&quot;Reward points&quot;, Double.valueOf(</span>
+<span class="nc" id="L227">					rewardsService.getRewardPoints(treeMapDistanceWithAttraction.get(distanceAttraction), user)));</span>
+
+<span class="nc" id="L229">			nearbyAttractionsMap.put(attractionName, nearbyAttractionsMapList);</span>
+<span class="nc" id="L230">			i++;</span>
+<span class="nc" id="L231">		}</span>
+
+<span class="nc" id="L233">		return nearbyAttractionsMap;</span>
+	}
+
+	/**
+	 * Get User Object by his UUID
+	 * 
+	 * @param UUID : the userId
+	 * @return Object : user
+	 */
+	public User getUserByUUID(UUID userId) {
+<span class="nc" id="L243">		logger.info(&quot;Get the User Object by his UUID : &quot; + userId);</span>
+<span class="nc" id="L244">		return internalUserMap.values().stream().filter(user -&gt; user.getUserId().equals(userId)).findFirst().get();</span>
+	}
+
+	/**
+	 * Add a shut down hook for stopping the Tracker thread before shutting down the
+	 * JVM
+	 */
+	private void addShutDownHook() {
+<span class="nc" id="L252">		Runtime.getRuntime().addShutdownHook(new Thread() {</span>
+			public void run() {
+<span class="nc" id="L254">				tracker.stopTracking();</span>
+<span class="nc" id="L255">			}</span>
+		});
+<span class="nc" id="L257">	}</span>
+
+	/**********************************************************************************
+	 * 
+	 * Methods Below: For Internal Testing
+	 * 
+	 **********************************************************************************/
+	private static final String tripPricerApiKey = &quot;test-server-api-key&quot;;
+	// Database connection will be used for external users, but for testing purposes
+	// internal users are provided and stored in memory
+<span class="nc" id="L267">	private final Map&lt;String, User&gt; internalUserMap = new HashMap&lt;&gt;();</span>
+
+	private void initializeInternalUsers() {
+<span class="nc" id="L270">		IntStream.range(0, InternalTestHelper.getInternalUserNumber()).forEach(i -&gt; {</span>
+<span class="nc" id="L271">			String userName = &quot;internalUser&quot; + i;</span>
+<span class="nc" id="L272">			String phone = &quot;000&quot;;</span>
+<span class="nc" id="L273">			String email = userName + &quot;@tourGuide.com&quot;;</span>
+<span class="nc" id="L274">			User user = new User(UUID.randomUUID(), userName, phone, email);</span>
+<span class="nc" id="L275">			generateUserLocationHistory(user);</span>
+
+<span class="nc" id="L277">			internalUserMap.put(userName, user);</span>
+<span class="nc" id="L278">		});</span>
+<span class="nc" id="L279">		logger.debug(&quot;Created &quot; + InternalTestHelper.getInternalUserNumber() + &quot; internal test users.&quot;);</span>
+<span class="nc" id="L280">	}</span>
+
+	/**
+	 * Generate a user location history of 3 visited locations for the current user
+	 * 
+	 * @param user
+	 */
+	private void generateUserLocationHistory(User user) {
+<span class="nc" id="L288">		IntStream.range(0, 3).forEach(i -&gt; {</span>
+<span class="nc" id="L289">			user.addToVisitedLocations(new VisitedLocation(user.getUserId(),</span>
+<span class="nc" id="L290">					new Location(generateRandomLatitude(), generateRandomLongitude()), getRandomTime()));</span>
+<span class="nc" id="L291">		});</span>
+<span class="nc" id="L292">	}</span>
+
+	/**
+	 * Generate a random Longitude
+	 * 
+	 * @return double of longitude
+	 */
+	private double generateRandomLongitude() {
+<span class="nc" id="L300">		double leftLimit = -180;</span>
+<span class="nc" id="L301">		double rightLimit = 180;</span>
+<span class="nc" id="L302">		return leftLimit + new Random().nextDouble() * (rightLimit - leftLimit);</span>
+	}
+
+	/**
+	 * Generate a random latitude
+	 * 
+	 * @return double of latitude
+	 */
+	private double generateRandomLatitude() {
+<span class="nc" id="L311">		double leftLimit = -85.05112878;</span>
+<span class="nc" id="L312">		double rightLimit = 85.05112878;</span>
+<span class="nc" id="L313">		return leftLimit + new Random().nextDouble() * (rightLimit - leftLimit);</span>
+	}
+
+	/**
+	 * Generate a random LocalDateTime
+	 * 
+	 * @return Date of a random time
+	 */
+	private Date getRandomTime() {
+<span class="nc" id="L322">		LocalDateTime localDateTime = LocalDateTime.now().minusDays(new Random().nextInt(30));</span>
+<span class="nc" id="L323">		return Date.from(localDateTime.toInstant(ZoneOffset.UTC));</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

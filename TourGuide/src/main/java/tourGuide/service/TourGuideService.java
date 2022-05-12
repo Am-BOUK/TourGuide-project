@@ -1,5 +1,7 @@
 package tourGuide.service;
 
+import static org.junit.Assert.assertTrue;
+
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -69,6 +71,9 @@ public class TourGuideService {
 	 */
 	public List<UserReward> getUserRewards(User user) {
 		logger.info("Get list of rewards of the user : " + user.getUserName());
+//		user.addToVisitedLocations(new VisitedLocation(user.getUserId(), attraction, new Date()));
+//		rewardsService.calculateRewards(user);
+//		assertTrue(user.getUserRewards().size() > 0);
 		return user.getUserRewards();
 	}
 
@@ -148,7 +153,12 @@ public class TourGuideService {
 	 * @return VisitedLocation
 	 */
 	public VisitedLocation trackUserLocation(User user) {
-		logger.info("track the location of the user : " + user.getUserName());
+//		logger.info("track the location of the user : " + user.getUserName());
+//		CompletableFuture.runAsync(() -> {
+//			VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
+//			user.addToVisitedLocations(visitedLocation);
+//			rewardsService.calculateRewards(user);
+//		});
 		VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
 		user.addToVisitedLocations(visitedLocation);
 		rewardsService.calculateRewards(user);
