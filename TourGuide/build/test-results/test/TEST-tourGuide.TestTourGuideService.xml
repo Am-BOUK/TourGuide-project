@@ -1,209 +1,173 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="tourGuide.TestTourGuideService" tests="1" skipped="0" failures="1" errors="0" timestamp="2022-05-11T14:10:00" hostname="DESKTOP-AR04L1G" time="0.003">
+<testsuite name="tourGuide.TestTourGuideService" tests="15" skipped="0" failures="0" errors="0" timestamp="2022-05-30T13:54:49" hostname="DESKTOP-AR04L1G" time="27.942">
   <properties/>
-  <testcase name="initializationError" classname="tourGuide.TestTourGuideService" time="0.003">
-    <failure message="java.util.ServiceConfigurationError: Locale provider adapter &quot;CLDR&quot;cannot be instantiated." type="java.util.ServiceConfigurationError">java.util.ServiceConfigurationError: Locale provider adapter &quot;CLDR&quot;cannot be instantiated.
-	at java.base/sun.util.locale.provider.LocaleProviderAdapter.forType(LocaleProviderAdapter.java:199)
-	at java.base/sun.util.locale.provider.LocaleProviderAdapter.findAdapter(LocaleProviderAdapter.java:287)
-	at java.base/sun.util.locale.provider.LocaleProviderAdapter.getAdapter(LocaleProviderAdapter.java:258)
-	at java.base/java.util.Calendar.createCalendar(Calendar.java:1693)
-	at java.base/java.util.Calendar.getInstance(Calendar.java:1661)
-	at java.base/java.text.SimpleDateFormat.initializeCalendar(SimpleDateFormat.java:677)
-	at java.base/java.text.SimpleDateFormat.&lt;init&gt;(SimpleDateFormat.java:621)
-	at java.base/java.text.SimpleDateFormat.&lt;init&gt;(SimpleDateFormat.java:600)
-	at ch.qos.logback.core.util.CachingDateFormatter.&lt;init&gt;(CachingDateFormatter.java:33)
-	at ch.qos.logback.classic.layout.TTLLLayout.&lt;init&gt;(TTLLLayout.java:25)
-	at ch.qos.logback.classic.BasicConfigurator.configure(BasicConfigurator.java:48)
-	at ch.qos.logback.classic.util.ContextInitializer.autoConfig(ContextInitializer.java:164)
-	at org.slf4j.impl.StaticLoggerBinder.init(StaticLoggerBinder.java:84)
-	at org.slf4j.impl.StaticLoggerBinder.&lt;clinit&gt;(StaticLoggerBinder.java:55)
-	at org.slf4j.LoggerFactory.bind(LoggerFactory.java:150)
-	at org.slf4j.LoggerFactory.performInitialization(LoggerFactory.java:124)
-	at org.slf4j.LoggerFactory.getILoggerFactory(LoggerFactory.java:412)
-	at org.slf4j.LoggerFactory.getLogger(LoggerFactory.java:357)
-	at org.apache.commons.logging.LogAdapter$Slf4jAdapter.createLocationAwareLog(LogAdapter.java:130)
-	at org.apache.commons.logging.LogAdapter.createLog(LogAdapter.java:91)
-	at org.apache.commons.logging.LogFactory.getLog(LogFactory.java:67)
-	at org.apache.commons.logging.LogFactory.getLog(LogFactory.java:59)
-	at org.springframework.test.context.junit4.SpringJUnit4ClassRunner.&lt;clinit&gt;(SpringJUnit4ClassRunner.java:99)
-	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
-	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:64)
-	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
-	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:500)
-	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:481)
-	at org.junit.internal.builders.AnnotatedBuilder.buildRunner(AnnotatedBuilder.java:104)
-	at org.junit.internal.builders.AnnotatedBuilder.runnerForClass(AnnotatedBuilder.java:86)
-	at org.junit.runners.model.RunnerBuilder.safeRunnerForClass(RunnerBuilder.java:59)
-	at org.junit.internal.builders.AllDefaultPossibilitiesBuilder.runnerForClass(AllDefaultPossibilitiesBuilder.java:26)
-	at org.junit.runners.model.RunnerBuilder.safeRunnerForClass(RunnerBuilder.java:59)
-	at org.junit.internal.requests.ClassRequest.getRunner(ClassRequest.java:33)
-	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.runTestClass(JUnitTestClassExecutor.java:78)
-	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:58)
-	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:38)
-	at org.gradle.api.internal.tasks.testing.junit.AbstractJUnitTestClassProcessor.processTestClass(AbstractJUnitTestClassProcessor.java:66)
-	at org.gradle.api.internal.tasks.testing.SuiteTestClassProcessor.processTestClass(SuiteTestClassProcessor.java:51)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:64)
-	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
-	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:35)
-	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
-	at org.gradle.internal.dispatch.ContextClassLoaderDispatch.dispatch(ContextClassLoaderDispatch.java:32)
-	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:93)
-	at com.sun.proxy.$Proxy4.processTestClass(Unknown Source)
-	at org.gradle.api.internal.tasks.testing.worker.TestWorker.processTestClass(TestWorker.java:109)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:64)
-	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
-	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:35)
-	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
-	at org.gradle.internal.remote.internal.hub.MessageHubBackedObjectConnection$DispatchWrapper.dispatch(MessageHubBackedObjectConnection.java:155)
-	at org.gradle.internal.remote.internal.hub.MessageHubBackedObjectConnection$DispatchWrapper.dispatch(MessageHubBackedObjectConnection.java:137)
-	at org.gradle.internal.remote.internal.hub.MessageHub$Handler.run(MessageHub.java:404)
-	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:63)
-	at org.gradle.internal.concurrent.ManagedExecutorImpl$1.run(ManagedExecutorImpl.java:46)
-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
-	at org.gradle.internal.concurrent.ThreadFactoryImpl$ManagedThreadRunnable.run(ThreadFactoryImpl.java:55)
-	at java.base/java.lang.Thread.run(Thread.java:832)
-Caused by: java.lang.reflect.InvocationTargetException
-	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
-	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:64)
-	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
-	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:500)
-	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:481)
-	at java.base/sun.util.locale.provider.LocaleProviderAdapter.forType(LocaleProviderAdapter.java:188)
-	... 63 more
-Caused by: java.util.ServiceConfigurationError: sun.util.locale.provider.LocaleDataMetaInfo: Unable to load sun.util.resources.cldr.provider.CLDRLocaleDataMetaInfo
-	at java.base/java.util.ServiceLoader.fail(ServiceLoader.java:584)
-	at java.base/java.util.ServiceLoader.loadProvider(ServiceLoader.java:856)
-	at java.base/java.util.ServiceLoader$ModuleServicesLookupIterator.hasNext(ServiceLoader.java:1078)
-	at java.base/java.util.ServiceLoader$2.hasNext(ServiceLoader.java:1301)
-	at java.base/java.util.ServiceLoader$3.hasNext(ServiceLoader.java:1386)
-	at java.base/sun.util.cldr.CLDRLocaleProviderAdapter$1.run(CLDRLocaleProviderAdapter.java:89)
-	at java.base/sun.util.cldr.CLDRLocaleProviderAdapter$1.run(CLDRLocaleProviderAdapter.java:86)
-	at java.base/java.security.AccessController.doPrivileged(AccessController.java:554)
-	at java.base/sun.util.cldr.CLDRLocaleProviderAdapter.&lt;init&gt;(CLDRLocaleProviderAdapter.java:86)
-	... 69 more
-Caused by: java.lang.LinkageError: loader 'platform' attempted duplicate class definition for sun.util.resources.cldr.provider.CLDRLocaleDataMetaInfo. (sun.util.resources.cldr.provider.CLDRLocaleDataMetaInfo is in module jdk.localedata of loader 'platform')
-	at java.base/java.lang.ClassLoader.defineClass1(Native Method)
-	at java.base/java.lang.ClassLoader.defineClass(ClassLoader.java:1016)
-	at java.base/java.lang.ClassLoader.defineClass(ClassLoader.java:1095)
-	at java.base/java.security.SecureClassLoader.defineClass(SecureClassLoader.java:183)
-	at java.base/jdk.internal.loader.BuiltinClassLoader.defineClass(BuiltinClassLoader.java:784)
-	at java.base/jdk.internal.loader.BuiltinClassLoader.findClassInModuleOrNull(BuiltinClassLoader.java:705)
-	at java.base/jdk.internal.loader.BuiltinClassLoader.findClass(BuiltinClassLoader.java:586)
-	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:634)
-	at java.base/java.lang.Class.forName(Class.java:546)
-	at java.base/java.util.ServiceLoader.loadProvider(ServiceLoader.java:854)
-	... 76 more
-</failure>
-  </testcase>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[java.lang.instrument.IllegalClassFormatException: Error while instrumenting sun/util/resources/cldr/provider/CLDRLocaleDataMetaInfo.
-	at org.jacoco.agent.rt.internal_035b120.CoverageTransformer.transform(CoverageTransformer.java:93)
-	at java.instrument/java.lang.instrument.ClassFileTransformer.transform(ClassFileTransformer.java:246)
-	at java.instrument/sun.instrument.TransformerManager.transform(TransformerManager.java:188)
-	at java.instrument/sun.instrument.InstrumentationImpl.transform(InstrumentationImpl.java:563)
-	at java.base/java.lang.ClassLoader.defineClass1(Native Method)
-	at java.base/java.lang.ClassLoader.defineClass(ClassLoader.java:1016)
-	at java.base/java.lang.ClassLoader.defineClass(ClassLoader.java:1095)
-	at java.base/java.security.SecureClassLoader.defineClass(SecureClassLoader.java:183)
-	at java.base/jdk.internal.loader.BuiltinClassLoader.defineClass(BuiltinClassLoader.java:784)
-	at java.base/jdk.internal.loader.BuiltinClassLoader.findClassInModuleOrNull(BuiltinClassLoader.java:705)
-	at java.base/jdk.internal.loader.BuiltinClassLoader.findClass(BuiltinClassLoader.java:586)
-	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:634)
-	at java.base/java.lang.Class.forName(Class.java:546)
-	at java.base/java.util.ServiceLoader.loadProvider(ServiceLoader.java:854)
-	at java.base/java.util.ServiceLoader$ModuleServicesLookupIterator.hasNext(ServiceLoader.java:1078)
-	at java.base/java.util.ServiceLoader$2.hasNext(ServiceLoader.java:1301)
-	at java.base/java.util.ServiceLoader$3.hasNext(ServiceLoader.java:1386)
-	at java.base/sun.util.cldr.CLDRLocaleProviderAdapter$1.run(CLDRLocaleProviderAdapter.java:89)
-	at java.base/sun.util.cldr.CLDRLocaleProviderAdapter$1.run(CLDRLocaleProviderAdapter.java:86)
-	at java.base/java.security.AccessController.doPrivileged(AccessController.java:554)
-	at java.base/sun.util.cldr.CLDRLocaleProviderAdapter.<init>(CLDRLocaleProviderAdapter.java:86)
-	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
-	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:64)
-	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
-	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:500)
-	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:481)
-	at java.base/sun.util.locale.provider.LocaleProviderAdapter.forType(LocaleProviderAdapter.java:188)
-	at java.base/sun.util.locale.provider.LocaleProviderAdapter.findAdapter(LocaleProviderAdapter.java:287)
-	at java.base/sun.util.locale.provider.LocaleProviderAdapter.getAdapter(LocaleProviderAdapter.java:258)
-	at java.base/java.util.Calendar.createCalendar(Calendar.java:1693)
-	at java.base/java.util.Calendar.getInstance(Calendar.java:1661)
-	at java.base/java.text.SimpleDateFormat.initializeCalendar(SimpleDateFormat.java:677)
-	at java.base/java.text.SimpleDateFormat.<init>(SimpleDateFormat.java:621)
-	at java.base/java.text.SimpleDateFormat.<init>(SimpleDateFormat.java:600)
-	at ch.qos.logback.core.util.CachingDateFormatter.<init>(CachingDateFormatter.java:33)
-	at ch.qos.logback.classic.layout.TTLLLayout.<init>(TTLLLayout.java:25)
-	at ch.qos.logback.classic.BasicConfigurator.configure(BasicConfigurator.java:48)
-	at ch.qos.logback.classic.util.ContextInitializer.autoConfig(ContextInitializer.java:164)
-	at org.slf4j.impl.StaticLoggerBinder.init(StaticLoggerBinder.java:84)
-	at org.slf4j.impl.StaticLoggerBinder.<clinit>(StaticLoggerBinder.java:55)
-	at org.slf4j.LoggerFactory.bind(LoggerFactory.java:150)
-	at org.slf4j.LoggerFactory.performInitialization(LoggerFactory.java:124)
-	at org.slf4j.LoggerFactory.getILoggerFactory(LoggerFactory.java:412)
-	at org.slf4j.LoggerFactory.getLogger(LoggerFactory.java:357)
-	at org.apache.commons.logging.LogAdapter$Slf4jAdapter.createLocationAwareLog(LogAdapter.java:130)
-	at org.apache.commons.logging.LogAdapter.createLog(LogAdapter.java:91)
-	at org.apache.commons.logging.LogFactory.getLog(LogFactory.java:67)
-	at org.apache.commons.logging.LogFactory.getLog(LogFactory.java:59)
-	at org.springframework.test.context.junit4.SpringJUnit4ClassRunner.<clinit>(SpringJUnit4ClassRunner.java:99)
-	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
-	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:64)
-	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
-	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:500)
-	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:481)
-	at org.junit.internal.builders.AnnotatedBuilder.buildRunner(AnnotatedBuilder.java:104)
-	at org.junit.internal.builders.AnnotatedBuilder.runnerForClass(AnnotatedBuilder.java:86)
-	at org.junit.runners.model.RunnerBuilder.safeRunnerForClass(RunnerBuilder.java:59)
-	at org.junit.internal.builders.AllDefaultPossibilitiesBuilder.runnerForClass(AllDefaultPossibilitiesBuilder.java:26)
-	at org.junit.runners.model.RunnerBuilder.safeRunnerForClass(RunnerBuilder.java:59)
-	at org.junit.internal.requests.ClassRequest.getRunner(ClassRequest.java:33)
-	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.runTestClass(JUnitTestClassExecutor.java:78)
-	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:58)
-	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:38)
-	at org.gradle.api.internal.tasks.testing.junit.AbstractJUnitTestClassProcessor.processTestClass(AbstractJUnitTestClassProcessor.java:66)
-	at org.gradle.api.internal.tasks.testing.SuiteTestClassProcessor.processTestClass(SuiteTestClassProcessor.java:51)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:64)
-	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
-	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:35)
-	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
-	at org.gradle.internal.dispatch.ContextClassLoaderDispatch.dispatch(ContextClassLoaderDispatch.java:32)
-	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:93)
-	at com.sun.proxy.$Proxy4.processTestClass(Unknown Source)
-	at org.gradle.api.internal.tasks.testing.worker.TestWorker.processTestClass(TestWorker.java:109)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:64)
-	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:564)
-	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:35)
-	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
-	at org.gradle.internal.remote.internal.hub.MessageHubBackedObjectConnection$DispatchWrapper.dispatch(MessageHubBackedObjectConnection.java:155)
-	at org.gradle.internal.remote.internal.hub.MessageHubBackedObjectConnection$DispatchWrapper.dispatch(MessageHubBackedObjectConnection.java:137)
-	at org.gradle.internal.remote.internal.hub.MessageHub$Handler.run(MessageHub.java:404)
-	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:63)
-	at org.gradle.internal.concurrent.ManagedExecutorImpl$1.run(ManagedExecutorImpl.java:46)
-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1130)
-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:630)
-	at org.gradle.internal.concurrent.ThreadFactoryImpl$ManagedThreadRunnable.run(ThreadFactoryImpl.java:55)
-	at java.base/java.lang.Thread.run(Thread.java:832)
-Caused by: java.io.IOException: Error while instrumenting sun/util/resources/cldr/provider/CLDRLocaleDataMetaInfo.
-	at org.jacoco.agent.rt.internal_035b120.core.instr.Instrumenter.instrumentError(Instrumenter.java:158)
-	at org.jacoco.agent.rt.internal_035b120.core.instr.Instrumenter.instrument(Instrumenter.java:108)
-	at org.jacoco.agent.rt.internal_035b120.CoverageTransformer.transform(CoverageTransformer.java:91)
-	... 89 more
-Caused by: java.lang.IllegalArgumentException: Unsupported class file major version 59
-	at org.jacoco.agent.rt.internal_035b120.asm.ClassReader.<init>(ClassReader.java:195)
-	at org.jacoco.agent.rt.internal_035b120.asm.ClassReader.<init>(ClassReader.java:176)
-	at org.jacoco.agent.rt.internal_035b120.asm.ClassReader.<init>(ClassReader.java:162)
-	at org.jacoco.agent.rt.internal_035b120.core.internal.instr.InstrSupport.classReaderFor(InstrSupport.java:279)
-	at org.jacoco.agent.rt.internal_035b120.core.instr.Instrumenter.instrument(Instrumenter.java:74)
-	at org.jacoco.agent.rt.internal_035b120.core.instr.Instrumenter.instrument(Instrumenter.java:106)
-	... 90 more
-]]></system-err>
+  <testcase name="updateUserTest_whenNumberOfAdultsNull_shouldReturnUserNameNotFoundException" classname="tourGuide.TestTourGuideService" time="0.186"/>
+  <testcase name="getUserRewardsTest" classname="tourGuide.TestTourGuideService" time="15.03"/>
+  <testcase name="updateUserTest_whenTicketQuantityNull_shouldReturnUserNameNotFoundException" classname="tourGuide.TestTourGuideService" time="0.001"/>
+  <testcase name="updateUserTest_whenTripDurationNull_shouldReturnUserNameNotFoundException" classname="tourGuide.TestTourGuideService" time="0.001"/>
+  <testcase name="addUserTest" classname="tourGuide.TestTourGuideService" time="0.001"/>
+  <testcase name="getAllUsersTest" classname="tourGuide.TestTourGuideService" time="0.001"/>
+  <testcase name="getNearByAttractionsTest" classname="tourGuide.TestTourGuideService" time="2.444"/>
+  <testcase name="getAllCurrentLocationsTest" classname="tourGuide.TestTourGuideService" time="0.196"/>
+  <testcase name="updateUserTest_whenUserDoesNotExist_shouldReturnUserNameNotFoundException" classname="tourGuide.TestTourGuideService" time="0.002"/>
+  <testcase name="trackUserLocationTest" classname="tourGuide.TestTourGuideService" time="5.002"/>
+  <testcase name="updateUserTest" classname="tourGuide.TestTourGuideService" time="0.001"/>
+  <testcase name="getUserTest_WhenUserDoesNotExist_ShouldRerurnUserNameNotFoundException" classname="tourGuide.TestTourGuideService" time="0.001"/>
+  <testcase name="getTripDealsTest" classname="tourGuide.TestTourGuideService" time="0.022"/>
+  <testcase name="getUserTest" classname="tourGuide.TestTourGuideService" time="0.002"/>
+  <testcase name="getUserLocationTest" classname="tourGuide.TestTourGuideService" time="5.049"/>
+  <system-out><![CDATA[15:54:49.183 [Test worker] INFO tourGuide.service.TourGuideService - TestMode enabled
+15:54:49.184 [Test worker] DEBUG tourGuide.service.TourGuideService - Initializing users
+15:54:49.185 [Test worker] DEBUG tourGuide.service.TourGuideService - Created 0 internal test users.
+15:54:49.185 [Test worker] DEBUG tourGuide.service.TourGuideService - Finished initializing users
+15:54:49.185 [Test worker] INFO tourGuide.service.TourGuideService - Add a new user : jon
+15:54:49.185 [Test worker] INFO tourGuide.service.TourGuideService - Get user object of the username : jon
+15:54:49.192 [pool-18-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+15:54:49.192 [pool-18-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 1 users.
+15:54:49.192 [pool-18-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+15:54:49.193 [pool-18-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+15:54:49.369 [Test worker] INFO tourGuide.service.TourGuideService - TestMode enabled
+15:54:49.369 [Test worker] DEBUG tourGuide.service.TourGuideService - Initializing users
+15:54:49.369 [Test worker] DEBUG tourGuide.service.TourGuideService - Created 0 internal test users.
+15:54:49.369 [Test worker] DEBUG tourGuide.service.TourGuideService - Finished initializing users
+15:54:49.369 [pool-21-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+15:54:49.370 [pool-21-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 0 users.
+15:54:49.370 [pool-21-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+15:54:49.370 [pool-21-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+15:55:04.399 [Test worker] INFO tourGuide.service.TourGuideService - TestMode enabled
+15:55:04.399 [Test worker] DEBUG tourGuide.service.TourGuideService - Initializing users
+15:55:04.399 [Test worker] DEBUG tourGuide.service.TourGuideService - Created 0 internal test users.
+15:55:04.399 [Test worker] DEBUG tourGuide.service.TourGuideService - Finished initializing users
+15:55:04.400 [Test worker] INFO tourGuide.service.TourGuideService - Add a new user : jon
+15:55:04.400 [pool-24-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+15:55:04.400 [Test worker] INFO tourGuide.service.TourGuideService - Get user object of the username : jon
+15:55:04.400 [pool-24-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 1 users.
+15:55:04.400 [pool-24-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+15:55:04.400 [pool-24-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+15:55:04.400 [Test worker] INFO tourGuide.service.TourGuideService - TestMode enabled
+15:55:04.401 [Test worker] DEBUG tourGuide.service.TourGuideService - Initializing users
+15:55:04.401 [Test worker] DEBUG tourGuide.service.TourGuideService - Created 0 internal test users.
+15:55:04.401 [Test worker] DEBUG tourGuide.service.TourGuideService - Finished initializing users
+15:55:04.401 [Test worker] INFO tourGuide.service.TourGuideService - Add a new user : jon
+15:55:04.401 [pool-27-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+15:55:04.401 [pool-27-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 1 users.
+15:55:04.401 [Test worker] INFO tourGuide.service.TourGuideService - Get user object of the username : jon
+15:55:04.402 [pool-27-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+15:55:04.402 [Test worker] INFO tourGuide.service.TourGuideService - TestMode enabled
+15:55:04.402 [Test worker] DEBUG tourGuide.service.TourGuideService - Initializing users
+15:55:04.402 [Test worker] DEBUG tourGuide.service.TourGuideService - Created 0 internal test users.
+15:55:04.402 [Test worker] DEBUG tourGuide.service.TourGuideService - Finished initializing users
+15:55:04.402 [pool-27-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+15:55:04.402 [Test worker] INFO tourGuide.service.TourGuideService - Add a new user : jon
+15:55:04.402 [Test worker] INFO tourGuide.service.TourGuideService - Add a new user : jon2
+15:55:04.402 [Test worker] INFO tourGuide.service.TourGuideService - Get user object of the username : jon
+15:55:04.402 [Test worker] INFO tourGuide.service.TourGuideService - Get user object of the username : jon2
+15:55:04.402 [pool-30-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+15:55:04.403 [pool-30-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 2 users.
+15:55:04.403 [Test worker] INFO tourGuide.service.TourGuideService - TestMode enabled
+15:55:04.403 [Test worker] DEBUG tourGuide.service.TourGuideService - Initializing users
+15:55:04.403 [Test worker] DEBUG tourGuide.service.TourGuideService - Created 0 internal test users.
+15:55:04.403 [Test worker] DEBUG tourGuide.service.TourGuideService - Finished initializing users
+15:55:04.403 [pool-30-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+15:55:04.403 [pool-30-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+15:55:04.403 [Test worker] INFO tourGuide.service.TourGuideService - Add a new user : jon
+15:55:04.403 [Test worker] INFO tourGuide.service.TourGuideService - Add a new user : jon2
+15:55:04.403 [Test worker] INFO tourGuide.service.TourGuideService - Get list of all users
+15:55:04.403 [Test worker] INFO tourGuide.service.TourGuideService - TestMode enabled
+15:55:04.403 [Test worker] DEBUG tourGuide.service.TourGuideService - Initializing users
+15:55:04.403 [Test worker] DEBUG tourGuide.service.TourGuideService - Created 0 internal test users.
+15:55:04.403 [Test worker] DEBUG tourGuide.service.TourGuideService - Finished initializing users
+15:55:04.404 [Test worker] INFO tourGuide.service.TourGuideService - Get last visited location of the user : jon
+15:55:04.405 [pool-36-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+15:55:04.405 [pool-33-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker stopping
+15:55:04.405 [pool-36-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 0 users.
+15:55:04.405 [pool-36-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+15:55:04.405 [pool-36-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+7603.590258671724:Franklin Park Zoo
+7746.267495939155:Bronx Zoo
+7752.363420906808:Flatiron Building
+7913.543418702568:Union Station
+8042.18660739431:Fallingwater
+15:55:06.848 [Test worker] INFO tourGuide.service.TourGuideService - TestMode enabled
+15:55:06.849 [Test worker] DEBUG tourGuide.service.TourGuideService - Initializing users
+15:55:06.849 [Test worker] DEBUG tourGuide.service.TourGuideService - Created 0 internal test users.
+15:55:06.849 [Test worker] DEBUG tourGuide.service.TourGuideService - Finished initializing users
+15:55:06.850 [pool-39-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+15:55:06.850 [Test worker] INFO tourGuide.service.TourGuideService - Add a new user : jon
+15:55:06.850 [pool-39-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 0 users.
+15:55:06.850 [Test worker] INFO tourGuide.service.TourGuideService - Add a new user : jon2
+15:55:06.850 [pool-39-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+15:55:06.850 [Test worker] INFO tourGuide.service.TourGuideService - Get list of all users
+15:55:06.850 [pool-39-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+15:55:06.850 [Test worker] INFO tourGuide.service.TourGuideService - Get a list of every user's most recent location
+15:55:06.851 [Test worker] INFO tourGuide.service.TourGuideService - Get list of all users
+15:55:06.851 [Test worker] INFO tourGuide.service.TourGuideService - Get last visited location of the user : jon
+15:55:06.948 [Test worker] INFO tourGuide.service.TourGuideService - Get last visited location of the user : jon2
+15:55:07.045 [Test worker] INFO tourGuide.service.TourGuideService - TestMode enabled
+15:55:07.045 [Test worker] DEBUG tourGuide.service.TourGuideService - Initializing users
+15:55:07.045 [Test worker] DEBUG tourGuide.service.TourGuideService - Created 0 internal test users.
+15:55:07.045 [Test worker] DEBUG tourGuide.service.TourGuideService - Finished initializing users
+15:55:07.046 [Test worker] INFO tourGuide.service.TourGuideService - Add a new user : jon
+15:55:07.046 [pool-42-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+15:55:07.046 [Test worker] ERROR tourGuide.service.TourGuideService - The userName : toto, does not exist !
+15:55:07.046 [pool-42-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 1 users.
+15:55:07.046 [pool-42-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+15:55:07.046 [pool-42-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+15:55:07.047 [Test worker] INFO tourGuide.service.TourGuideService - TestMode enabled
+15:55:07.048 [Test worker] DEBUG tourGuide.service.TourGuideService - Initializing users
+15:55:07.048 [Test worker] DEBUG tourGuide.service.TourGuideService - Created 0 internal test users.
+15:55:07.048 [Test worker] DEBUG tourGuide.service.TourGuideService - Finished initializing users
+15:55:07.048 [pool-45-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+15:55:07.048 [pool-45-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 0 users.
+15:55:07.048 [pool-45-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+15:55:07.048 [pool-45-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+15:55:12.049 [Test worker] INFO tourGuide.service.TourGuideService - TestMode enabled
+15:55:12.049 [Test worker] DEBUG tourGuide.service.TourGuideService - Initializing users
+15:55:12.049 [Test worker] DEBUG tourGuide.service.TourGuideService - Created 0 internal test users.
+15:55:12.049 [Test worker] DEBUG tourGuide.service.TourGuideService - Finished initializing users
+15:55:12.050 [Test worker] INFO tourGuide.service.TourGuideService - Add a new user : jon
+15:55:12.050 [pool-48-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+15:55:12.050 [Test worker] INFO tourGuide.service.TourGuideService - Get user object of the username : jon
+15:55:12.050 [pool-48-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 1 users.
+15:55:12.050 [pool-48-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+15:55:12.050 [Test worker] INFO tourGuide.service.TourGuideService - TestMode enabled
+15:55:12.050 [pool-48-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+15:55:12.051 [Test worker] DEBUG tourGuide.service.TourGuideService - Initializing users
+15:55:12.051 [Test worker] DEBUG tourGuide.service.TourGuideService - Created 0 internal test users.
+15:55:12.051 [Test worker] DEBUG tourGuide.service.TourGuideService - Finished initializing users
+15:55:12.051 [Test worker] ERROR tourGuide.service.TourGuideService - The userName : toto, does not exist !
+15:55:12.051 [pool-51-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+15:55:12.051 [pool-51-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 0 users.
+15:55:12.051 [pool-51-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+15:55:12.051 [pool-51-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+15:55:12.051 [Test worker] INFO tourGuide.service.TourGuideService - TestMode enabled
+15:55:12.051 [Test worker] DEBUG tourGuide.service.TourGuideService - Initializing users
+15:55:12.051 [Test worker] DEBUG tourGuide.service.TourGuideService - Created 0 internal test users.
+15:55:12.051 [Test worker] DEBUG tourGuide.service.TourGuideService - Finished initializing users
+15:55:12.052 [Test worker] INFO tourGuide.service.TourGuideService - Get trip deals of the user : jon
+15:55:12.052 [pool-54-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+15:55:12.052 [pool-54-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 0 users.
+15:55:12.052 [pool-54-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+15:55:12.052 [pool-54-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+15:55:12.074 [Test worker] INFO tourGuide.service.TourGuideService - TestMode enabled
+15:55:12.074 [Test worker] DEBUG tourGuide.service.TourGuideService - Initializing users
+15:55:12.074 [Test worker] DEBUG tourGuide.service.TourGuideService - Created 0 internal test users.
+15:55:12.074 [Test worker] DEBUG tourGuide.service.TourGuideService - Finished initializing users
+15:55:12.075 [Test worker] INFO tourGuide.service.TourGuideService - Add a new user : jon
+15:55:12.075 [Test worker] INFO tourGuide.service.TourGuideService - Get user object of the username : jon
+15:55:12.075 [pool-57-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+15:55:12.075 [pool-57-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 1 users.
+15:55:12.075 [Test worker] INFO tourGuide.service.TourGuideService - TestMode enabled
+15:55:12.075 [pool-57-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+15:55:12.075 [pool-57-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+15:55:12.075 [Test worker] DEBUG tourGuide.service.TourGuideService - Initializing users
+15:55:12.076 [Test worker] DEBUG tourGuide.service.TourGuideService - Created 0 internal test users.
+15:55:12.076 [Test worker] DEBUG tourGuide.service.TourGuideService - Finished initializing users
+15:55:12.076 [Test worker] INFO tourGuide.service.TourGuideService - Get last visited location of the user : jon
+15:55:12.076 [pool-60-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+15:55:12.076 [pool-60-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 0 users.
+15:55:12.076 [pool-60-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+15:55:12.077 [pool-60-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
 </testsuite>

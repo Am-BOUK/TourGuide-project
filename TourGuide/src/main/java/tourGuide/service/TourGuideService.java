@@ -1,19 +1,12 @@
 package tourGuide.service;
 
-import static org.junit.Assert.assertTrue;
-
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -26,9 +19,15 @@ import gpsUtil.location.Attraction;
 import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
 import rewardCentral.RewardCentral;
+import tourGuide.constants.GenerateUserLocationHistory;
+import tourGuide.constants.InternalDefaultValue;
+import tourGuide.constants.NearByAttractions;
+import tourGuide.exceptions.UserNameNotFoundException;
+import tourGuide.exceptions.UserPreferencesException;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.tracker.Tracker;
 import tourGuide.user.User;
+import tourGuide.user.UserPreferences;
 import tourGuide.user.UserReward;
 import tripPricer.Provider;
 import tripPricer.TripPricer;
@@ -36,6 +35,8 @@ import tripPricer.TripPricer;
 @Service
 public class TourGuideService {
 	private Logger logger = LoggerFactory.getLogger(TourGuideService.class);
+	// service d'exécuteur de type pool de threads fix
+	private final ExecutorService executor = Executors.newFixedThreadPool(1000);
 	private final GpsUtil gpsUtil;
 	private final RewardsService rewardsService;
 	private final TripPricer tripPricer = new TripPricer();
@@ -68,12 +69,9 @@ public class TourGuideService {
 	 * 
 	 * @param user : the user Object
 	 * @return list : the list of user's rewards
+	 * @throws UserNameNotFoundException
 	 */
 	public List<UserReward> getUserRewards(User user) {
-		logger.info("Get list of rewards of the user : " + user.getUserName());
-//		user.addToVisitedLocations(new VisitedLocation(user.getUserId(), attraction, new Date()));
-//		rewardsService.calculateRewards(user);
-//		assertTrue(user.getUserRewards().size() > 0);
 		return user.getUserRewards();
 	}
 
@@ -83,12 +81,16 @@ public class TourGuideService {
 	 * @param user : the user object
 	 * @return VisitedLocation : the last visited location or track location of the
 	 *         user
+	 * @throws UserNameNotFoundException
 	 */
 	public VisitedLocation getUserLocation(User user) {
 		logger.info("Get last visited location of the user : " + user.getUserName());
-		VisitedLocation visitedLocation = (user.getVisitedLocations().size() > 0) ? user.getLastVisitedLocation()
-				: trackUserLocation(user);
-		return visitedLocation;
+		if (user.getVisitedLocations().size() > 0) {
+			return user.getLastVisitedLocation();
+		} else {
+			trackUserLocation(user);
+			return gpsUtil.getUserLocation(user.getUserId());
+		}
 	}
 
 	/**
@@ -96,10 +98,19 @@ public class TourGuideService {
 	 * 
 	 * @param userName : the user name of the user we want to get
 	 * @return User : the user object
+	 * @throws UserNameNotFoundException
 	 */
-	public User getUser(String userName) {
+	public User getUser(String userName) throws UserNameNotFoundException {
+		if (!checkIfUserNameExists(userName)) {
+			logger.error("The userName : " + userName + ", does not exist !");
+			throw new UserNameNotFoundException(" The userName : " + userName + ", does not exist !");
+		}
 		logger.info("Get user object of the username : " + userName);
 		return internalUserMap.get(userName);
+	}
+
+	public ExecutorService getExecutor() {
+		return executor;
 	}
 
 	/**
@@ -150,35 +161,18 @@ public class TourGuideService {
 	 * track the location of a given user
 	 * 
 	 * @param user
-	 * @return VisitedLocation
 	 */
-	public VisitedLocation trackUserLocation(User user) {
-//		logger.info("track the location of the user : " + user.getUserName());
-//		CompletableFuture.runAsync(() -> {
-//			VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
-//			user.addToVisitedLocations(visitedLocation);
-//			rewardsService.calculateRewards(user);
-//		});
-		VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
-		user.addToVisitedLocations(visitedLocation);
-		rewardsService.calculateRewards(user);
-		return visitedLocation;
-	}
-
-	/**
-	 * Get a list of every user's most recent location
-	 * 
-	 * @return List : mapping of userId to Locations
-	 */
-	public Map<String, Location> getAllCurrentLocations() {
-		logger.info("Get a list of every user's most recent location");
-		Map<String, Location> usersLocationMap = new HashMap<>();
-		for (User user : getAllUsers()) {
-			String userInfo = user.getUserId().toString();
-			VisitedLocation recentLocation = getUserLocation(user);
-			usersLocationMap.put(userInfo, recentLocation.location);
-		}
-		return usersLocationMap;
+	public void trackUserLocation(User user) {
+		Locale.setDefault(Locale.US);
+		CompletableFuture.supplyAsync(() -> {
+			VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
+			user.addToVisitedLocations(visitedLocation);
+			return visitedLocation;
+		}, executor).thenAccept(location -> {
+			rewardsService.calculateRewards(user);
+		}).exceptionally(throwable -> {
+			throw new RejectedExecutionException(throwable.getMessage());
+		});
 	}
 
 	/**
@@ -212,7 +206,7 @@ public class TourGuideService {
 		Iterator<Double> iteratorOfOrderedDistancesKeys = orderedDistancesKeys.iterator();
 
 		int i = 0;
-		while (i < 5 && iteratorOfOrderedDistancesKeys.hasNext()) {
+		while (i < NearByAttractions.CLOSEST_ATTRACTIONS_NUMBER && iteratorOfOrderedDistancesKeys.hasNext()) {
 			Double distanceAttraction = iteratorOfOrderedDistancesKeys.next();
 			System.out.println(distanceAttraction + ":"
 					+ treeMapAttractionSodtedByDistance.get(distanceAttraction).attractionName);
@@ -232,19 +226,50 @@ public class TourGuideService {
 			nearbyAttractions.put(attractionName, nearbyAttractionsMapList);
 			i++;
 		}
-
 		return nearbyAttractions;
 	}
 
 	/**
-	 * Get User Object by his UUID
+	 * Get a list of every user's most recent location
 	 * 
-	 * @param UUID : the userId
-	 * @return Object : user
+	 * @return List : mapping of userId to Locations
+	 * @throws UserNameNotFoundException
 	 */
-	public User getUserByUUID(UUID userId) {
-		logger.info("Get the User Object by his UUID : " + userId);
-		return internalUserMap.values().stream().filter(user -> user.getUserId().equals(userId)).findFirst().get();
+	public Map<String, Location> getAllCurrentLocations() {
+		logger.info("Get a list of every user's most recent location");
+		Map<String, Location> usersLocationMap = new HashMap<>();
+		for (User user : getAllUsers()) {
+			String userInfo = user.getUserId().toString();
+			VisitedLocation recentLocation = getUserLocation(user);
+			usersLocationMap.put(userInfo, recentLocation.location);
+		}
+		return usersLocationMap;
+	}
+
+	/**
+	 * Sets the user preferences with the new user preferences
+	 * 
+	 * @param userName
+	 * @param userPreferences
+	 * @return
+	 * @throws UserNameNotFoundException
+	 * @throws UserPreferencesException
+	 */
+	public UserPreferences updateUserPreferences(String userName, UserPreferences userPreferences)
+			throws UserNameNotFoundException, UserPreferencesException {
+		User user = getUser(userName);
+		if (userPreferences.getNumberOfAdults() == 0) {
+			throw new UserPreferencesException("Number Of Adults can not be null !");
+		}
+		if (userPreferences.getTripDuration() == 0) {
+			throw new UserPreferencesException("Trip Duration can not be null !");
+		}
+		if (userPreferences.getTicketQuantity() == 0) {
+			throw new UserPreferencesException("Ticket Quantity can not be null !");
+		}
+		user.setUserPreferences(userPreferences);
+
+		return user.getUserPreferences();
 	}
 
 	/**
@@ -260,11 +285,11 @@ public class TourGuideService {
 	}
 
 	/**********************************************************************************
-	 * 
+	 *
 	 * Methods Below: For Internal Testing
-	 * 
+	 *
 	 **********************************************************************************/
-	private static final String tripPricerApiKey = "test-server-api-key";
+	private static final String tripPricerApiKey = InternalDefaultValue.TRIP_PRICER_API_KEY;
 	// Database connection will be used for external users, but for testing purposes
 	// internal users are provided and stored in memory
 	private final Map<String, User> internalUserMap = new HashMap<>();
@@ -282,48 +307,38 @@ public class TourGuideService {
 		logger.debug("Created " + InternalTestHelper.getInternalUserNumber() + " internal test users.");
 	}
 
-	/**
-	 * Generate a user location history of 3 visited locations for the current user
-	 * 
-	 * @param user
-	 */
 	private void generateUserLocationHistory(User user) {
-		IntStream.range(0, 3).forEach(i -> {
+		IntStream.range(0, GenerateUserLocationHistory.DEFAULT_VALUE).forEach(i -> {
 			user.addToVisitedLocations(new VisitedLocation(user.getUserId(),
 					new Location(generateRandomLatitude(), generateRandomLongitude()), getRandomTime()));
 		});
 	}
 
-	/**
-	 * Generate a random Longitude
-	 * 
-	 * @return double of longitude
-	 */
 	private double generateRandomLongitude() {
 		double leftLimit = -180;
 		double rightLimit = 180;
 		return leftLimit + new Random().nextDouble() * (rightLimit - leftLimit);
 	}
 
-	/**
-	 * Generate a random latitude
-	 * 
-	 * @return double of latitude
-	 */
 	private double generateRandomLatitude() {
 		double leftLimit = -85.05112878;
 		double rightLimit = 85.05112878;
 		return leftLimit + new Random().nextDouble() * (rightLimit - leftLimit);
 	}
 
-	/**
-	 * Generate a random LocalDateTime
-	 * 
-	 * @return Date of a random time
-	 */
 	private Date getRandomTime() {
 		LocalDateTime localDateTime = LocalDateTime.now().minusDays(new Random().nextInt(30));
 		return Date.from(localDateTime.toInstant(ZoneOffset.UTC));
+	}
+
+	/**
+	 * Check if the InternalUserMap contains already the userName
+	 *
+	 * @param userName the string of the username
+	 * @return the boolean of the check
+	 */
+	public boolean checkIfUserNameExists(String userName) {
+		return internalUserMap.containsKey(userName) ? true : false;
 	}
 
 }

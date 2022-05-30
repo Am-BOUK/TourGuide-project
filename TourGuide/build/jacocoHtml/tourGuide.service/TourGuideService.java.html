@@ -2,15 +2,11 @@
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -22,21 +18,31 @@ import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
+import rewardCentral.RewardCentral;
+import tourGuide.constants.GenerateUserLocationHistory;
+import tourGuide.constants.InternalDefaultValue;
+import tourGuide.constants.NearByAttractions;
+import tourGuide.exceptions.UserNameNotFoundException;
+import tourGuide.exceptions.UserPreferencesException;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.tracker.Tracker;
 import tourGuide.user.User;
+import tourGuide.user.UserPreferences;
 import tourGuide.user.UserReward;
 import tripPricer.Provider;
 import tripPricer.TripPricer;
 
 @Service
 public class TourGuideService {
-<span class="nc" id="L34">	private Logger logger = LoggerFactory.getLogger(TourGuideService.class);</span>
+<span class="fc" id="L37">	private Logger logger = LoggerFactory.getLogger(TourGuideService.class);</span>
+	// service d'exécuteur de type pool de threads fix
+<span class="fc" id="L39">	private final ExecutorService executor = Executors.newFixedThreadPool(1000);</span>
 	private final GpsUtil gpsUtil;
 	private final RewardsService rewardsService;
-<span class="nc" id="L37">	private final TripPricer tripPricer = new TripPricer();</span>
+<span class="fc" id="L42">	private final TripPricer tripPricer = new TripPricer();</span>
 	public final Tracker tracker;
-<span class="nc" id="L39">	boolean testMode = true;</span>
+<span class="fc" id="L44">	private final RewardCentral rewardsCentral = new RewardCentral();</span>
+<span class="fc" id="L45">	boolean testMode = true;</span>
 
 	/**
 	 * configuration service test
@@ -44,29 +50,29 @@ public class TourGuideService {
 	 * @param gpsUtil
 	 * @param rewardsService
 	 */
-<span class="nc" id="L47">	public TourGuideService(GpsUtil gpsUtil, RewardsService rewardsService) {</span>
-<span class="nc" id="L48">		this.gpsUtil = gpsUtil;</span>
-<span class="nc" id="L49">		this.rewardsService = rewardsService;</span>
+<span class="fc" id="L53">	public TourGuideService(GpsUtil gpsUtil, RewardsService rewardsService) {</span>
+<span class="fc" id="L54">		this.gpsUtil = gpsUtil;</span>
+<span class="fc" id="L55">		this.rewardsService = rewardsService;</span>
 
-<span class="nc bnc" id="L51" title="All 2 branches missed.">		if (testMode) {</span>
-<span class="nc" id="L52">			logger.info(&quot;TestMode enabled&quot;);</span>
-<span class="nc" id="L53">			logger.debug(&quot;Initializing users&quot;);</span>
-<span class="nc" id="L54">			initializeInternalUsers();</span>
-<span class="nc" id="L55">			logger.debug(&quot;Finished initializing users&quot;);</span>
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">		if (testMode) {</span>
+<span class="fc" id="L58">			logger.info(&quot;TestMode enabled&quot;);</span>
+<span class="fc" id="L59">			logger.debug(&quot;Initializing users&quot;);</span>
+<span class="fc" id="L60">			initializeInternalUsers();</span>
+<span class="fc" id="L61">			logger.debug(&quot;Finished initializing users&quot;);</span>
 		}
-<span class="nc" id="L57">		tracker = new Tracker(this);</span>
-<span class="nc" id="L58">		addShutDownHook();</span>
-<span class="nc" id="L59">	}</span>
+<span class="fc" id="L63">		tracker = new Tracker(this);</span>
+<span class="fc" id="L64">		addShutDownHook();</span>
+<span class="fc" id="L65">	}</span>
 
 	/**
 	 * Get list of rewards of the giving user
 	 * 
 	 * @param user : the user Object
 	 * @return list : the list of user's rewards
+	 * @throws UserNameNotFoundException
 	 */
 	public List&lt;UserReward&gt; getUserRewards(User user) {
-<span class="nc" id="L68">		logger.info(&quot;Get list of rewards of the user : &quot; + user.getUserName());</span>
-<span class="nc" id="L69">		return user.getUserRewards();</span>
+<span class="fc" id="L75">		return user.getUserRewards();</span>
 	}
 
 	/**
@@ -75,12 +81,16 @@ public class TourGuideService {
 	 * @param user : the user object
 	 * @return VisitedLocation : the last visited location or track location of the
 	 *         user
+	 * @throws UserNameNotFoundException
 	 */
 	public VisitedLocation getUserLocation(User user) {
-<span class="nc" id="L80">		logger.info(&quot;Get last visited location of the user : &quot; + user.getUserName());</span>
-<span class="nc bnc" id="L81" title="All 2 branches missed.">		VisitedLocation visitedLocation = (user.getVisitedLocations().size() &gt; 0) ? user.getLastVisitedLocation()</span>
-<span class="nc" id="L82">				: trackUserLocation(user);</span>
-<span class="nc" id="L83">		return visitedLocation;</span>
+<span class="fc" id="L87">		logger.info(&quot;Get last visited location of the user : &quot; + user.getUserName());</span>
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">		if (user.getVisitedLocations().size() &gt; 0) {</span>
+<span class="nc" id="L89">			return user.getLastVisitedLocation();</span>
+		} else {
+<span class="fc" id="L91">			trackUserLocation(user);</span>
+<span class="fc" id="L92">			return gpsUtil.getUserLocation(user.getUserId());</span>
+		}
 	}
 
 	/**
@@ -88,10 +98,19 @@ public class TourGuideService {
 	 * 
 	 * @param userName : the user name of the user we want to get
 	 * @return User : the user object
+	 * @throws UserNameNotFoundException
 	 */
-	public User getUser(String userName) {
-<span class="nc" id="L93">		logger.info(&quot;Get user object of the username : &quot; + userName);</span>
-<span class="nc" id="L94">		return internalUserMap.get(userName);</span>
+	public User getUser(String userName) throws UserNameNotFoundException {
+<span class="fc bfc" id="L104" title="All 2 branches covered.">		if (!checkIfUserNameExists(userName)) {</span>
+<span class="fc" id="L105">			logger.error(&quot;The userName : &quot; + userName + &quot;, does not exist !&quot;);</span>
+<span class="fc" id="L106">			throw new UserNameNotFoundException(&quot; The userName : &quot; + userName + &quot;, does not exist !&quot;);</span>
+		}
+<span class="fc" id="L108">		logger.info(&quot;Get user object of the username : &quot; + userName);</span>
+<span class="fc" id="L109">		return internalUserMap.get(userName);</span>
+	}
+
+	public ExecutorService getExecutor() {
+<span class="fc" id="L113">		return executor;</span>
 	}
 
 	/**
@@ -100,8 +119,8 @@ public class TourGuideService {
 	 * @return List : the users list
 	 */
 	public List&lt;User&gt; getAllUsers() {
-<span class="nc" id="L103">		logger.info(&quot;Get list of all users&quot;);</span>
-<span class="nc" id="L104">		return internalUserMap.values().stream().collect(Collectors.toList());</span>
+<span class="fc" id="L122">		logger.info(&quot;Get list of all users&quot;);</span>
+<span class="fc" id="L123">		return internalUserMap.values().stream().collect(Collectors.toList());</span>
 	}
 
 	/**
@@ -112,11 +131,11 @@ public class TourGuideService {
 	 * @param user : user object to add
 	 */
 	public void addUser(User user) {
-<span class="nc" id="L115">		logger.info(&quot;Add a new user : &quot; + user.getUserName());</span>
-<span class="nc bnc" id="L116" title="All 2 branches missed.">		if (!internalUserMap.containsKey(user.getUserName())) {</span>
-<span class="nc" id="L117">			internalUserMap.put(user.getUserName(), user);</span>
+<span class="fc" id="L134">		logger.info(&quot;Add a new user : &quot; + user.getUserName());</span>
+<span class="pc bpc" id="L135" title="1 of 2 branches missed.">		if (!internalUserMap.containsKey(user.getUserName())) {</span>
+<span class="fc" id="L136">			internalUserMap.put(user.getUserName(), user);</span>
 		}
-<span class="nc" id="L119">	}</span>
+<span class="fc" id="L138">	}</span>
 
 	/**
 	 * get trip deals of the giving user. *** this method first allows to accumulate
@@ -129,44 +148,32 @@ public class TourGuideService {
 	 * @return List : trip deals list of the user.
 	 */
 	public List&lt;Provider&gt; getTripDeals(User user) {
-<span class="nc" id="L132">		logger.info(&quot;Get trip deals of the user : &quot; + user.getUserName());</span>
-<span class="nc" id="L133">		int cumulatativeRewardPoints = user.getUserRewards().stream().mapToInt(i -&gt; i.getRewardPoints()).sum();</span>
-<span class="nc" id="L134">		List&lt;Provider&gt; providers = tripPricer.getPrice(tripPricerApiKey, user.getUserId(),</span>
-<span class="nc" id="L135">				user.getUserPreferences().getNumberOfAdults(), user.getUserPreferences().getNumberOfChildren(),</span>
-<span class="nc" id="L136">				user.getUserPreferences().getTripDuration(), cumulatativeRewardPoints);</span>
-<span class="nc" id="L137">		user.setTripDeals(providers);</span>
-<span class="nc" id="L138">		return providers;</span>
+<span class="fc" id="L151">		logger.info(&quot;Get trip deals of the user : &quot; + user.getUserName());</span>
+<span class="pc" id="L152">		int cumulatativeRewardPoints = user.getUserRewards().stream().mapToInt(i -&gt; i.getRewardPoints()).sum();</span>
+<span class="fc" id="L153">		List&lt;Provider&gt; providers = tripPricer.getPrice(tripPricerApiKey, user.getUserId(),</span>
+<span class="fc" id="L154">				user.getUserPreferences().getNumberOfAdults(), user.getUserPreferences().getNumberOfChildren(),</span>
+<span class="fc" id="L155">				user.getUserPreferences().getTripDuration(), cumulatativeRewardPoints);</span>
+<span class="fc" id="L156">		user.setTripDeals(providers);</span>
+<span class="fc" id="L157">		return providers;</span>
 	}
 
 	/**
 	 * track the location of a given user
 	 * 
 	 * @param user
-	 * @return VisitedLocation
 	 */
-	public VisitedLocation trackUserLocation(User user) {
-<span class="nc" id="L148">		logger.info(&quot;track the location of the user : &quot; + user.getUserName());</span>
-<span class="nc" id="L149">		VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());</span>
-<span class="nc" id="L150">		user.addToVisitedLocations(visitedLocation);</span>
-<span class="nc" id="L151">		rewardsService.calculateRewards(user);</span>
-<span class="nc" id="L152">		return visitedLocation;</span>
-	}
-
-	/**
-	 * Get a list of every user's most recent location
-	 * 
-	 * @return List : mapping of userId to Locations
-	 */
-	public Map&lt;String, Location&gt; getAllCurrentLocations() {
-<span class="nc" id="L161">		logger.info(&quot;Get a list of every user's most recent location&quot;);</span>
-<span class="nc" id="L162">		Map&lt;String, Location&gt; usersLocationMap = new HashMap&lt;&gt;();</span>
-<span class="nc bnc" id="L163" title="All 2 branches missed.">		for (User user : getAllUsers()) {</span>
-<span class="nc" id="L164">			String userInfo = user.getUserId().toString();</span>
-<span class="nc" id="L165">			VisitedLocation recentLocation = getUserLocation(user);</span>
-<span class="nc" id="L166">			usersLocationMap.put(userInfo, recentLocation.location);</span>
-<span class="nc" id="L167">		}</span>
-<span class="nc" id="L168">		return usersLocationMap;</span>
-	}
+	public void trackUserLocation(User user) {
+<span class="fc" id="L166">		Locale.setDefault(Locale.US);</span>
+<span class="fc" id="L167">		CompletableFuture.supplyAsync(() -&gt; {</span>
+<span class="fc" id="L168">			VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());</span>
+<span class="fc" id="L169">			user.addToVisitedLocations(visitedLocation);</span>
+<span class="fc" id="L170">			return visitedLocation;</span>
+<span class="fc" id="L171">		}, executor).thenAccept(location -&gt; {</span>
+<span class="fc" id="L172">			rewardsService.calculateRewards(user);</span>
+<span class="fc" id="L173">		}).exceptionally(throwable -&gt; {</span>
+<span class="nc" id="L174">			throw new RejectedExecutionException(throwable.getMessage());</span>
+		});
+<span class="fc" id="L176">	}</span>
 
 	/**
 	 * Get the closest five tourist attractions to the user *** this method allows
@@ -180,68 +187,89 @@ public class TourGuideService {
 	 * @return Map : the closest attraction list to the user.
 	 */
 	public Map&lt;String, Map&lt;String, Double&gt;&gt; getNearByAttractions(VisitedLocation visitedLocation) {
-<span class="nc" id="L183">		User user = getUserByUUID(visitedLocation.userId);</span>
-<span class="nc" id="L184">		logger.info(&quot;Get the closest five tourist attractions to the user : &quot; + user.getUserName());</span>
-
-<span class="nc" id="L186">		Double distance = 0.0;</span>
-
-<span class="nc" id="L188">		Map&lt;Double, Attraction&gt; mapNearbyAttractions = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L190">		Double distance = 0.0;</span>
+<span class="fc" id="L191">		Map&lt;Double, Attraction&gt; mapAttractionsByDistance = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L192">		Map&lt;String, Map&lt;String, Double&gt;&gt; nearbyAttractions = new HashMap&lt;&gt;();</span>
 
 		// calculate the distance between the user's location and each of the
 		// attractions, then fill in our map
-<span class="nc bnc" id="L192" title="All 2 branches missed.">		for (Attraction attraction : gpsUtil.getAttractions()) {</span>
-<span class="nc" id="L193">			distance = rewardsService.getDistance(attraction, visitedLocation.location);</span>
-<span class="nc" id="L194">			mapNearbyAttractions.put(distance, attraction);</span>
-<span class="nc" id="L195">		}</span>
+<span class="fc bfc" id="L196" title="All 2 branches covered.">		for (Attraction attraction : gpsUtil.getAttractions()) {</span>
+<span class="fc" id="L197">			distance = rewardsService.getDistance(attraction, visitedLocation.location);</span>
+<span class="fc" id="L198">			mapAttractionsByDistance.put(distance, attraction);</span>
+<span class="fc" id="L199">		}</span>
 
-		// sort attractions in descending order of distances
-<span class="nc" id="L198">		TreeMap&lt;Double, Attraction&gt; treeMapDistanceWithAttraction = new TreeMap&lt;&gt;(mapNearbyAttractions);</span>
+		// sort attractions in descending order by distances
+<span class="fc" id="L202">		TreeMap&lt;Double, Attraction&gt; treeMapAttractionSodtedByDistance = new TreeMap&lt;&gt;(mapAttractionsByDistance);</span>
 
 		// retrieve ordered keys
-<span class="nc" id="L201">		Set&lt;Double&gt; distanceSortedList = treeMapDistanceWithAttraction.keySet();</span>
-<span class="nc" id="L202">		Iterator&lt;Double&gt; iteratorDistance = distanceSortedList.iterator();</span>
-<span class="nc" id="L203">		Map&lt;Double, Attraction&gt; nearbyAttractionsList = new HashMap&lt;&gt;();</span>
-<span class="nc" id="L204">		Map&lt;String, Map&lt;String, Double&gt;&gt; nearbyAttractionsMap = new HashMap&lt;&gt;();</span>
-		Attraction sortedAttraction;
-<span class="nc" id="L206">		int i = 0;</span>
-<span class="nc bnc" id="L207" title="All 4 branches missed.">		while (i &lt; 5 &amp;&amp; iteratorDistance.hasNext()) {</span>
-<span class="nc" id="L208">			Double distanceAttraction = iteratorDistance.next();</span>
-<span class="nc" id="L209">			System.out.println(</span>
-<span class="nc" id="L210">					distanceAttraction + &quot;:&quot; + treeMapDistanceWithAttraction.get(distanceAttraction).attractionName);</span>
-<span class="nc" id="L211">			sortedAttraction = treeMapDistanceWithAttraction.get(distanceAttraction);</span>
-<span class="nc" id="L212">			nearbyAttractionsList.put(distanceAttraction, sortedAttraction);</span>
+<span class="fc" id="L205">		Set&lt;Double&gt; orderedDistancesKeys = treeMapAttractionSodtedByDistance.keySet();</span>
+<span class="fc" id="L206">		Iterator&lt;Double&gt; iteratorOfOrderedDistancesKeys = orderedDistancesKeys.iterator();</span>
 
-<span class="nc" id="L214">			String attractionName = &quot;Attraction name : &quot;</span>
-<span class="nc" id="L215">					+ treeMapDistanceWithAttraction.get(distanceAttraction).attractionName;</span>
-<span class="nc" id="L216">			Map&lt;String, Double&gt; nearbyAttractionsMapList = new HashMap&lt;String, Double&gt;();</span>
+<span class="fc" id="L208">		int i = 0;</span>
+<span class="pc bpc" id="L209" title="1 of 4 branches missed.">		while (i &lt; NearByAttractions.CLOSEST_ATTRACTIONS_NUMBER &amp;&amp; iteratorOfOrderedDistancesKeys.hasNext()) {</span>
+<span class="fc" id="L210">			Double distanceAttraction = iteratorOfOrderedDistancesKeys.next();</span>
+<span class="fc" id="L211">			System.out.println(distanceAttraction + &quot;:&quot;</span>
+<span class="fc" id="L212">					+ treeMapAttractionSodtedByDistance.get(distanceAttraction).attractionName);</span>
+<span class="fc" id="L213">			Attraction attraction = treeMapAttractionSodtedByDistance.get(distanceAttraction);</span>
 
-<span class="nc" id="L218">			nearbyAttractionsMapList.put(&quot;Attraction latitude &quot;,</span>
-<span class="nc" id="L219">					treeMapDistanceWithAttraction.get(distanceAttraction).latitude);</span>
-<span class="nc" id="L220">			nearbyAttractionsMapList.put(&quot;Attraction longitude &quot;,</span>
-<span class="nc" id="L221">					treeMapDistanceWithAttraction.get(distanceAttraction).longitude);</span>
-<span class="nc" id="L222">			nearbyAttractionsMapList.put(&quot;User latitude &quot;, visitedLocation.location.latitude);</span>
-<span class="nc" id="L223">			nearbyAttractionsMapList.put(&quot;User longitude &quot;, visitedLocation.location.longitude);</span>
-<span class="nc" id="L224">			nearbyAttractionsMapList.put(&quot;Distance User_Attraction in miles&quot;, rewardsService</span>
-<span class="nc" id="L225">					.getDistance(visitedLocation.location, treeMapDistanceWithAttraction.get(distanceAttraction)));</span>
-<span class="nc" id="L226">			nearbyAttractionsMapList.put(&quot;Reward points&quot;, Double.valueOf(</span>
-<span class="nc" id="L227">					rewardsService.getRewardPoints(treeMapDistanceWithAttraction.get(distanceAttraction), user)));</span>
+<span class="fc" id="L215">			String attractionName = &quot;Attraction name : &quot; + attraction.attractionName;</span>
+<span class="fc" id="L216">			Map&lt;String, Double&gt; nearbyAttractionsMapList = new HashMap&lt;String, Double&gt;();</span>
 
-<span class="nc" id="L229">			nearbyAttractionsMap.put(attractionName, nearbyAttractionsMapList);</span>
-<span class="nc" id="L230">			i++;</span>
-<span class="nc" id="L231">		}</span>
+<span class="fc" id="L218">			nearbyAttractionsMapList.put(&quot;Attraction latitude &quot;, attraction.latitude);</span>
+<span class="fc" id="L219">			nearbyAttractionsMapList.put(&quot;Attraction longitude &quot;, attraction.longitude);</span>
+<span class="fc" id="L220">			nearbyAttractionsMapList.put(&quot;User latitude &quot;, visitedLocation.location.latitude);</span>
+<span class="fc" id="L221">			nearbyAttractionsMapList.put(&quot;User longitude &quot;, visitedLocation.location.longitude);</span>
+<span class="fc" id="L222">			nearbyAttractionsMapList.put(&quot;Distance User_Attraction in miles&quot;, distanceAttraction);</span>
+<span class="fc" id="L223">			nearbyAttractionsMapList.put(&quot;Reward points&quot;, Double.valueOf(</span>
+<span class="fc" id="L224">					rewardsCentral.getAttractionRewardPoints(attraction.attractionId, visitedLocation.userId)));</span>
 
-<span class="nc" id="L233">		return nearbyAttractionsMap;</span>
+<span class="fc" id="L226">			nearbyAttractions.put(attractionName, nearbyAttractionsMapList);</span>
+<span class="fc" id="L227">			i++;</span>
+<span class="fc" id="L228">		}</span>
+<span class="fc" id="L229">		return nearbyAttractions;</span>
 	}
 
 	/**
-	 * Get User Object by his UUID
+	 * Get a list of every user's most recent location
 	 * 
-	 * @param UUID : the userId
-	 * @return Object : user
+	 * @return List : mapping of userId to Locations
+	 * @throws UserNameNotFoundException
 	 */
-	public User getUserByUUID(UUID userId) {
-<span class="nc" id="L243">		logger.info(&quot;Get the User Object by his UUID : &quot; + userId);</span>
-<span class="nc" id="L244">		return internalUserMap.values().stream().filter(user -&gt; user.getUserId().equals(userId)).findFirst().get();</span>
+	public Map&lt;String, Location&gt; getAllCurrentLocations() {
+<span class="fc" id="L239">		logger.info(&quot;Get a list of every user's most recent location&quot;);</span>
+<span class="fc" id="L240">		Map&lt;String, Location&gt; usersLocationMap = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L241" title="All 2 branches covered.">		for (User user : getAllUsers()) {</span>
+<span class="fc" id="L242">			String userInfo = user.getUserId().toString();</span>
+<span class="fc" id="L243">			VisitedLocation recentLocation = getUserLocation(user);</span>
+<span class="fc" id="L244">			usersLocationMap.put(userInfo, recentLocation.location);</span>
+<span class="fc" id="L245">		}</span>
+<span class="fc" id="L246">		return usersLocationMap;</span>
+	}
+
+	/**
+	 * Sets the user preferences with the new user preferences
+	 * 
+	 * @param userName
+	 * @param userPreferences
+	 * @return
+	 * @throws UserNameNotFoundException
+	 * @throws UserPreferencesException
+	 */
+	public UserPreferences updateUserPreferences(String userName, UserPreferences userPreferences)
+			throws UserNameNotFoundException, UserPreferencesException {
+<span class="fc" id="L260">		User user = getUser(userName);</span>
+<span class="fc bfc" id="L261" title="All 2 branches covered.">		if (userPreferences.getNumberOfAdults() == 0) {</span>
+<span class="fc" id="L262">			throw new UserPreferencesException(&quot;Number Of Adults can not be null !&quot;);</span>
+		}
+<span class="fc bfc" id="L264" title="All 2 branches covered.">		if (userPreferences.getTripDuration() == 0) {</span>
+<span class="fc" id="L265">			throw new UserPreferencesException(&quot;Trip Duration can not be null !&quot;);</span>
+		}
+<span class="fc bfc" id="L267" title="All 2 branches covered.">		if (userPreferences.getTicketQuantity() == 0) {</span>
+<span class="fc" id="L268">			throw new UserPreferencesException(&quot;Ticket Quantity can not be null !&quot;);</span>
+		}
+<span class="fc" id="L270">		user.setUserPreferences(userPreferences);</span>
+
+<span class="fc" id="L272">		return user.getUserPreferences();</span>
 	}
 
 	/**
@@ -249,78 +277,68 @@ public class TourGuideService {
 	 * JVM
 	 */
 	private void addShutDownHook() {
-<span class="nc" id="L252">		Runtime.getRuntime().addShutdownHook(new Thread() {</span>
+<span class="fc" id="L280">		Runtime.getRuntime().addShutdownHook(new Thread() {</span>
 			public void run() {
-<span class="nc" id="L254">				tracker.stopTracking();</span>
-<span class="nc" id="L255">			}</span>
+<span class="fc" id="L282">				tracker.stopTracking();</span>
+<span class="fc" id="L283">			}</span>
 		});
-<span class="nc" id="L257">	}</span>
+<span class="fc" id="L285">	}</span>
 
 	/**********************************************************************************
-	 * 
+	 *
 	 * Methods Below: For Internal Testing
-	 * 
+	 *
 	 **********************************************************************************/
-	private static final String tripPricerApiKey = &quot;test-server-api-key&quot;;
+	private static final String tripPricerApiKey = InternalDefaultValue.TRIP_PRICER_API_KEY;
 	// Database connection will be used for external users, but for testing purposes
 	// internal users are provided and stored in memory
-<span class="nc" id="L267">	private final Map&lt;String, User&gt; internalUserMap = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L295">	private final Map&lt;String, User&gt; internalUserMap = new HashMap&lt;&gt;();</span>
 
 	private void initializeInternalUsers() {
-<span class="nc" id="L270">		IntStream.range(0, InternalTestHelper.getInternalUserNumber()).forEach(i -&gt; {</span>
-<span class="nc" id="L271">			String userName = &quot;internalUser&quot; + i;</span>
-<span class="nc" id="L272">			String phone = &quot;000&quot;;</span>
-<span class="nc" id="L273">			String email = userName + &quot;@tourGuide.com&quot;;</span>
-<span class="nc" id="L274">			User user = new User(UUID.randomUUID(), userName, phone, email);</span>
-<span class="nc" id="L275">			generateUserLocationHistory(user);</span>
+<span class="fc" id="L298">		IntStream.range(0, InternalTestHelper.getInternalUserNumber()).forEach(i -&gt; {</span>
+<span class="fc" id="L299">			String userName = &quot;internalUser&quot; + i;</span>
+<span class="fc" id="L300">			String phone = &quot;000&quot;;</span>
+<span class="fc" id="L301">			String email = userName + &quot;@tourGuide.com&quot;;</span>
+<span class="fc" id="L302">			User user = new User(UUID.randomUUID(), userName, phone, email);</span>
+<span class="fc" id="L303">			generateUserLocationHistory(user);</span>
 
-<span class="nc" id="L277">			internalUserMap.put(userName, user);</span>
-<span class="nc" id="L278">		});</span>
-<span class="nc" id="L279">		logger.debug(&quot;Created &quot; + InternalTestHelper.getInternalUserNumber() + &quot; internal test users.&quot;);</span>
-<span class="nc" id="L280">	}</span>
+<span class="fc" id="L305">			internalUserMap.put(userName, user);</span>
+<span class="fc" id="L306">		});</span>
+<span class="fc" id="L307">		logger.debug(&quot;Created &quot; + InternalTestHelper.getInternalUserNumber() + &quot; internal test users.&quot;);</span>
+<span class="fc" id="L308">	}</span>
 
-	/**
-	 * Generate a user location history of 3 visited locations for the current user
-	 * 
-	 * @param user
-	 */
 	private void generateUserLocationHistory(User user) {
-<span class="nc" id="L288">		IntStream.range(0, 3).forEach(i -&gt; {</span>
-<span class="nc" id="L289">			user.addToVisitedLocations(new VisitedLocation(user.getUserId(),</span>
-<span class="nc" id="L290">					new Location(generateRandomLatitude(), generateRandomLongitude()), getRandomTime()));</span>
-<span class="nc" id="L291">		});</span>
-<span class="nc" id="L292">	}</span>
+<span class="fc" id="L311">		IntStream.range(0, GenerateUserLocationHistory.DEFAULT_VALUE).forEach(i -&gt; {</span>
+<span class="fc" id="L312">			user.addToVisitedLocations(new VisitedLocation(user.getUserId(),</span>
+<span class="fc" id="L313">					new Location(generateRandomLatitude(), generateRandomLongitude()), getRandomTime()));</span>
+<span class="fc" id="L314">		});</span>
+<span class="fc" id="L315">	}</span>
 
-	/**
-	 * Generate a random Longitude
-	 * 
-	 * @return double of longitude
-	 */
 	private double generateRandomLongitude() {
-<span class="nc" id="L300">		double leftLimit = -180;</span>
-<span class="nc" id="L301">		double rightLimit = 180;</span>
-<span class="nc" id="L302">		return leftLimit + new Random().nextDouble() * (rightLimit - leftLimit);</span>
+<span class="fc" id="L318">		double leftLimit = -180;</span>
+<span class="fc" id="L319">		double rightLimit = 180;</span>
+<span class="fc" id="L320">		return leftLimit + new Random().nextDouble() * (rightLimit - leftLimit);</span>
 	}
 
-	/**
-	 * Generate a random latitude
-	 * 
-	 * @return double of latitude
-	 */
 	private double generateRandomLatitude() {
-<span class="nc" id="L311">		double leftLimit = -85.05112878;</span>
-<span class="nc" id="L312">		double rightLimit = 85.05112878;</span>
-<span class="nc" id="L313">		return leftLimit + new Random().nextDouble() * (rightLimit - leftLimit);</span>
+<span class="fc" id="L324">		double leftLimit = -85.05112878;</span>
+<span class="fc" id="L325">		double rightLimit = 85.05112878;</span>
+<span class="fc" id="L326">		return leftLimit + new Random().nextDouble() * (rightLimit - leftLimit);</span>
+	}
+
+	private Date getRandomTime() {
+<span class="fc" id="L330">		LocalDateTime localDateTime = LocalDateTime.now().minusDays(new Random().nextInt(30));</span>
+<span class="fc" id="L331">		return Date.from(localDateTime.toInstant(ZoneOffset.UTC));</span>
 	}
 
 	/**
-	 * Generate a random LocalDateTime
-	 * 
-	 * @return Date of a random time
+	 * Check if the InternalUserMap contains already the userName
+	 *
+	 * @param userName the string of the username
+	 * @return the boolean of the check
 	 */
-	private Date getRandomTime() {
-<span class="nc" id="L322">		LocalDateTime localDateTime = LocalDateTime.now().minusDays(new Random().nextInt(30));</span>
-<span class="nc" id="L323">		return Date.from(localDateTime.toInstant(ZoneOffset.UTC));</span>
+	public boolean checkIfUserNameExists(String userName) {
+<span class="fc bfc" id="L341" title="All 2 branches covered.">		return internalUserMap.containsKey(userName) ? true : false;</span>
 	}
 
 }

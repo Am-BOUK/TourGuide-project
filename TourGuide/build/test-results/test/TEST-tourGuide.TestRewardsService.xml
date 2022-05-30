@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="tourGuide.TestRewardsService" tests="5" skipped="0" failures="0" errors="0" timestamp="2022-05-30T13:54:36" hostname="DESKTOP-AR04L1G" time="13.101">
+  <properties/>
+  <testcase name="userGetRewardsTest" classname="tourGuide.TestRewardsService" time="1.021"/>
+  <testcase name="calculateRewardsTest" classname="tourGuide.TestRewardsService" time="1.024"/>
+  <testcase name="getDistanceTest" classname="tourGuide.TestRewardsService" time="0.0"/>
+  <testcase name="isWithinAttractionProximityTest" classname="tourGuide.TestRewardsService" time="0.012"/>
+  <testcase name="nearAllAttractionsTest" classname="tourGuide.TestRewardsService" time="11.041"/>
+  <system-out><![CDATA[15:54:36.067 [Test worker] INFO tourGuide.service.TourGuideService - TestMode enabled
+15:54:36.068 [Test worker] DEBUG tourGuide.service.TourGuideService - Initializing users
+15:54:36.068 [Test worker] DEBUG tourGuide.service.TourGuideService - Created 0 internal test users.
+15:54:36.068 [Test worker] DEBUG tourGuide.service.TourGuideService - Finished initializing users
+15:54:36.069 [pool-9-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+15:54:36.069 [pool-9-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 0 users.
+15:54:36.069 [pool-9-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+15:54:36.069 [pool-9-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+15:54:38.127 [Test worker] INFO tourGuide.service.TourGuideService - TestMode enabled
+15:54:38.127 [Test worker] DEBUG tourGuide.service.TourGuideService - Initializing users
+15:54:38.127 [Test worker] DEBUG tourGuide.service.TourGuideService - Created 1 internal test users.
+15:54:38.127 [Test worker] DEBUG tourGuide.service.TourGuideService - Finished initializing users
+15:54:38.129 [pool-15-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+15:54:38.129 [Test worker] INFO tourGuide.service.TourGuideService - Get list of all users
+15:54:38.129 [pool-15-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 1 users.
+15:54:38.130 [pool-15-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+15:54:38.130 [pool-15-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+15:54:49.143 [Test worker] INFO tourGuide.service.TourGuideService - Get list of all users
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

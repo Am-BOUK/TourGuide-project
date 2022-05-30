@@ -1,18 +1,16 @@
-package tourGuide;
+package tourGuide.serviceTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
@@ -25,16 +23,12 @@ import tourGuide.service.TourGuideService;
 import tourGuide.user.User;
 import tourGuide.user.UserReward;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes = Application.class)
 public class TestRewardsService {
-	private RewardsService rewardsService;
-//	@Mock
 	private GpsUtil gpsUtil;
+	private RewardsService rewardsService;
 
 	@Before
 	public void setUpTest() {
-		Locale.setDefault(Locale.US);
 		gpsUtil = new GpsUtil();
 		rewardsService = new RewardsService(gpsUtil, new RewardCentral());
 	}
@@ -47,6 +41,14 @@ public class TestRewardsService {
 		user.addToVisitedLocations(visitedLocation);
 
 		rewardsService.calculateRewards(user);
+		ThreadPoolExecutor executor = (ThreadPoolExecutor) rewardsService.getExecutor();
+		while (executor.getActiveCount() > 0) {
+			try {
+				TimeUnit.SECONDS.sleep(1);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 		assertEquals(1, user.getUserRewards().size());
 	}
 
@@ -59,6 +61,15 @@ public class TestRewardsService {
 		Attraction attraction = gpsUtil.getAttractions().get(0);
 		user.addToVisitedLocations(new VisitedLocation(user.getUserId(), attraction, new Date()));
 		tourGuideService.trackUserLocation(user);
+
+		ThreadPoolExecutor executor = (ThreadPoolExecutor) tourGuideService.getExecutor();
+		while (executor.getActiveCount() > 0) {
+			try {
+				TimeUnit.SECONDS.sleep(1);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 		List<UserReward> userRewards = user.getUserRewards();
 		tourGuideService.tracker.stopTracking();
 		assertTrue(userRewards.size() == 1);
@@ -70,22 +81,26 @@ public class TestRewardsService {
 		assertTrue(rewardsService.isWithinAttractionProximity(attraction, attraction));
 	}
 
-	@Test //Needs fixed
+	@Test
 	public void nearAllAttractionsTest() {
 		rewardsService.setProximityBuffer(Integer.MAX_VALUE);
-
 		InternalTestHelper.setInternalUserNumber(1);
 		TourGuideService tourGuideService = new TourGuideService(gpsUtil, rewardsService);
-
 		User user = tourGuideService.getAllUsers().get(0);
-		rewardsService.calculateRewards(user);
-		List<UserReward> userRewards = tourGuideService.getUserRewards(user);
 
+		rewardsService.calculateRewards(user);
+		ThreadPoolExecutor executorService = (ThreadPoolExecutor) rewardsService.getExecutor();
+		while (executorService.getActiveCount() > 0) {
+			try {
+				TimeUnit.SECONDS.sleep(1);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		List<UserReward> userRewards = tourGuideService.getUserRewards(tourGuideService.getAllUsers().get(0));
 		tourGuideService.tracker.stopTracking();
 
 		assertEquals(gpsUtil.getAttractions().size(), userRewards.size());
-//		assertNotNull(userRewards);
-
 	}
 
 	@Test
@@ -94,4 +109,5 @@ public class TestRewardsService {
 		Double distance = 1888.0699025936347;
 		assertTrue(distance.equals(result));
 	}
+
 }

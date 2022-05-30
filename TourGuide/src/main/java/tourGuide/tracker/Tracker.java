@@ -1,8 +1,6 @@
 package tourGuide.tracker;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -23,10 +21,10 @@ public class Tracker extends Thread {
 
 	public Tracker(TourGuideService tourGuideService) {
 		this.tourGuideService = tourGuideService;
-
+		
 		executorService.submit(this);
 	}
-
+	
 	/**
 	 * Assures to shut down the Tracker thread
 	 */
@@ -34,32 +32,22 @@ public class Tracker extends Thread {
 		stop = true;
 		executorService.shutdownNow();
 	}
-
+	
 	@Override
 	public void run() {
 		StopWatch stopWatch = new StopWatch();
-		while (true) {
-			if (Thread.currentThread().isInterrupted() || stop) {
+		while(true) {
+			if(Thread.currentThread().isInterrupted() || stop) {
 				logger.debug("Tracker stopping");
 				break;
 			}
-
+			
 			List<User> users = tourGuideService.getAllUsers();
-			List<CompletableFuture> listCompletableFutures = new ArrayList<>();
 			logger.debug("Begin Tracker. Tracking " + users.size() + " users.");
 			stopWatch.start();
-//			users.forEach(u -> tourGuideService.trackUserLocation(u));
-			for (User user : users) {
-				CompletableFuture completableFuture = CompletableFuture.runAsync(() -> {
-					tourGuideService.trackUserLocation(user);
-				}, executorService);
-				listCompletableFutures.add(completableFuture);
-			}
-			CompletableFuture
-					.allOf(listCompletableFutures.toArray(new CompletableFuture[listCompletableFutures.size()])).join();
-
+			users.forEach(u -> tourGuideService.trackUserLocation(u));
 			stopWatch.stop();
-			logger.debug("Tracker Time Elapsed: " + TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()) + " seconds.");
+			logger.debug("Tracker Time Elapsed: " + TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()) + " seconds."); 
 			stopWatch.reset();
 			try {
 				logger.debug("Tracker sleeping");
@@ -68,6 +56,6 @@ public class Tracker extends Thread {
 				break;
 			}
 		}
-
+		
 	}
 }

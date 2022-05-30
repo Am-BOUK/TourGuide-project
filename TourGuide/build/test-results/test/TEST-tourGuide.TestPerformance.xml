@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="tourGuide.TestPerformance" tests="2" skipped="0" failures="0" errors="0" timestamp="2022-05-30T13:32:52" hostname="DESKTOP-AR04L1G" time="1303.512">
+  <properties/>
+  <testcase name="highVolumeTrackLocation" classname="tourGuide.TestPerformance" time="802.73"/>
+  <testcase name="highVolumeGetRewards" classname="tourGuide.TestPerformance" time="500.782"/>
+  <system-out><![CDATA[15:32:52.801 [Test worker] INFO tourGuide.service.TourGuideService - TestMode enabled
+15:32:52.806 [Test worker] DEBUG tourGuide.service.TourGuideService - Initializing users
+15:32:54.080 [Test worker] DEBUG tourGuide.service.TourGuideService - Created 100000 internal test users.
+15:32:54.080 [Test worker] DEBUG tourGuide.service.TourGuideService - Finished initializing users
+15:32:54.085 [Test worker] INFO tourGuide.service.TourGuideService - Get list of all users
+15:32:54.095 [pool-3-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+15:32:54.121 [pool-3-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 100000 users.
+15:32:54.926 [pool-3-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+15:32:54.926 [pool-3-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+15:37:54.927 [pool-3-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+15:37:54.958 [pool-3-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 100000 users.
+15:37:55.053 [pool-3-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+15:37:55.054 [pool-3-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+15:42:55.055 [pool-3-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+15:42:55.065 [pool-3-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 100000 users.
+15:42:55.116 [pool-3-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+15:42:55.116 [pool-3-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+highVolumeTrackLocation: Time Elapsed: 801 seconds.
+15:46:15.274 [Test worker] INFO tourGuide.service.TourGuideService - TestMode enabled
+15:46:15.274 [Test worker] DEBUG tourGuide.service.TourGuideService - Initializing users
+15:46:15.729 [Test worker] DEBUG tourGuide.service.TourGuideService - Created 100000 internal test users.
+15:46:15.731 [Test worker] DEBUG tourGuide.service.TourGuideService - Finished initializing users
+15:46:15.734 [pool-6-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+15:46:15.745 [Test worker] INFO tourGuide.service.TourGuideService - Get list of all users
+15:46:15.751 [pool-6-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 100000 users.
+15:46:15.957 [pool-6-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+15:46:15.958 [pool-6-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+15:51:15.959 [pool-6-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+15:51:15.964 [pool-6-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 100000 users.
+15:51:16.002 [pool-6-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+15:51:16.002 [pool-6-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+highVolumeGetRewards: Time Elapsed: 500 seconds.
+]]></system-out>
+  <system-err><![CDATA[mai 30, 2022 3:32:52 PM org.javamoney.moneta.DefaultMonetaryContextFactory createMonetaryContextNonNullConfig
+INFO: Using custom MathContext: precision=256, roundingMode=HALF_EVEN
+]]></system-err>
+</testsuite>
