@@ -22,7 +22,7 @@ public class HomeController {
 	@RequestMapping("/")
 	public String index() {
 		logger.info("Get home page endpoint");
-		return "Greetings from TourGuide!";
+		return "Greetings from TourGuide!!!";
 	}
 
 }
