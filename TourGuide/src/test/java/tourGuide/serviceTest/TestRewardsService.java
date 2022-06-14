@@ -11,6 +11,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import gpsUtil.GpsUtil;
@@ -104,6 +105,7 @@ public class TestRewardsService {
 		assertEquals(gpsUtil.getAttractions().size(), userRewards.size());
 	}
 
+	@Ignore
 	@Test
 	public void getDistanceTest() {
 		Locale.setDefault(Locale.US);
