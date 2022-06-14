@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="tourGuide.TestPerformance" tests="2" skipped="0" failures="0" errors="0" timestamp="2022-06-14T11:21:00" hostname="DESKTOP-AR04L1G" time="1102.046">
+  <properties/>
+  <testcase name="highVolumeTrackLocation" classname="tourGuide.TestPerformance" time="601.253"/>
+  <testcase name="highVolumeGetRewards" classname="tourGuide.TestPerformance" time="500.792"/>
+  <system-out><![CDATA[13:21:00.384 [Test worker] INFO tourGuide.service.TourGuideService - TestMode enabled
+13:21:00.384 [Test worker] DEBUG tourGuide.service.TourGuideService - Initializing users
+13:21:01.059 [Test worker] DEBUG tourGuide.service.TourGuideService - Created 100000 internal test users.
+13:21:01.059 [Test worker] DEBUG tourGuide.service.TourGuideService - Finished initializing users
+13:21:01.060 [Test worker] INFO tourGuide.service.TourGuideService - Get list of all users
+13:21:01.061 [pool-48-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+13:21:01.087 [pool-48-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 100000 users.
+13:21:01.550 [pool-48-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+13:21:01.613 [pool-48-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+13:25:21.242 [pool-3-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+13:25:21.242 [pool-3-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 1 users.
+13:25:21.243 [pool-3-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+13:25:21.244 [pool-3-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+13:25:21.554 [pool-6-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+13:25:21.554 [pool-6-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 0 users.
+13:25:21.554 [pool-6-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+13:25:21.554 [pool-6-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+13:25:36.591 [pool-9-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+13:25:36.591 [pool-9-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 1 users.
+13:25:36.591 [pool-9-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+13:25:36.591 [pool-9-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+13:25:36.591 [pool-12-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+13:25:36.591 [pool-12-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 1 users.
+13:25:36.593 [pool-12-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+13:25:36.593 [pool-12-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+13:25:50.309 [pool-27-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+13:25:50.310 [pool-27-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 1 users.
+13:25:50.311 [pool-27-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+13:25:50.311 [pool-27-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+13:25:55.324 [pool-33-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+13:25:55.324 [pool-33-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 1 users.
+13:25:55.325 [pool-33-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+13:25:55.325 [pool-33-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+13:26:01.614 [pool-48-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+13:26:01.627 [pool-48-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 100000 users.
+13:26:01.680 [pool-48-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+13:26:01.681 [pool-48-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+13:30:21.246 [pool-3-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+13:30:21.246 [pool-3-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 1 users.
+13:30:21.246 [pool-3-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+13:30:21.247 [pool-3-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+13:30:21.555 [pool-6-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+13:30:21.555 [pool-6-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 0 users.
+13:30:21.555 [pool-6-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+13:30:21.555 [pool-6-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+13:30:36.592 [pool-9-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+13:30:36.592 [pool-9-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 1 users.
+13:30:36.593 [pool-9-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+13:30:36.593 [pool-9-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+13:30:36.595 [pool-12-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+13:30:36.595 [pool-12-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 1 users.
+13:30:36.595 [pool-12-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+13:30:36.595 [pool-12-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+13:30:50.311 [pool-27-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+13:30:50.311 [pool-27-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 1 users.
+13:30:50.311 [pool-27-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+13:30:50.312 [pool-27-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+13:30:55.326 [pool-33-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+13:30:55.326 [pool-33-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 1 users.
+13:30:55.326 [pool-33-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+13:30:55.326 [pool-33-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+highVolumeTrackLocation: Time Elapsed: 600 seconds.
+13:31:01.637 [Test worker] INFO tourGuide.service.TourGuideService - TestMode enabled
+13:31:01.637 [Test worker] DEBUG tourGuide.service.TourGuideService - Initializing users
+13:31:01.956 [Test worker] DEBUG tourGuide.service.TourGuideService - Created 100000 internal test users.
+13:31:01.956 [Test worker] DEBUG tourGuide.service.TourGuideService - Finished initializing users
+13:31:01.957 [pool-51-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+13:31:01.962 [pool-51-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 100000 users.
+13:31:01.967 [Test worker] INFO tourGuide.service.TourGuideService - Get list of all users
+13:31:02.296 [pool-51-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+13:31:02.296 [pool-51-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+13:35:21.248 [pool-3-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+13:35:21.248 [pool-3-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 1 users.
+13:35:21.248 [pool-3-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+13:35:21.249 [pool-3-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+13:35:21.557 [pool-6-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+13:35:21.557 [pool-6-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 0 users.
+13:35:21.557 [pool-6-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+13:35:21.557 [pool-6-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+13:35:36.594 [pool-9-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+13:35:36.594 [pool-9-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 1 users.
+13:35:36.594 [pool-9-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+13:35:36.594 [pool-9-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+13:35:36.596 [pool-12-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+13:35:36.596 [pool-12-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 1 users.
+13:35:36.596 [pool-12-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+13:35:36.596 [pool-12-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+13:35:50.312 [pool-27-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+13:35:50.312 [pool-27-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 1 users.
+13:35:50.312 [pool-27-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+13:35:50.312 [pool-27-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+13:35:55.327 [pool-33-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+13:35:55.327 [pool-33-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 1 users.
+13:35:55.327 [pool-33-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+13:35:55.327 [pool-33-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+13:36:02.298 [pool-51-thread-1] INFO tourGuide.service.TourGuideService - Get list of all users
+13:36:02.304 [pool-51-thread-1] DEBUG tourGuide.tracker.Tracker - Begin Tracker. Tracking 100000 users.
+13:36:02.324 [pool-51-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker Time Elapsed: 0 seconds.
+13:36:02.324 [pool-51-thread-1] DEBUG tourGuide.tracker.Tracker - Tracker sleeping
+highVolumeGetRewards: Time Elapsed: 500 seconds.
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
