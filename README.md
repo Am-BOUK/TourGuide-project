@@ -4,6 +4,7 @@
 Project 8 - OpenClassrooms- Scale Up Your App With Distributed Systems
 
 ## Purpose
+<img src="https://user.oc-static.com/upload/2019/10/22/15717519116439_15717362677942_image2.png"/>
 TourGuide is a Spring Boot application that has been a centerpiece in the TripMasters app portfolio. 
 The application will be targeting people looking for package deals on hotel stays and admissions to various attractions. 
 
