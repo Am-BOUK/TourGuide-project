@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -65,7 +66,7 @@ public class TestRewardsService {
 		ThreadPoolExecutor executor = (ThreadPoolExecutor) tourGuideService.getExecutor();
 		while (executor.getActiveCount() > 0) {
 			try {
-				TimeUnit.SECONDS.sleep(1);
+				TimeUnit.SECONDS.sleep(5);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -105,6 +106,7 @@ public class TestRewardsService {
 
 	@Test
 	public void getDistanceTest() {
+		Locale.setDefault(Locale.US);
 		double result = rewardsService.getDistance(new Location(10, 20), new Location(30, 40));
 		Double distance = 1888.0699025936347;
 		assertTrue(distance.equals(result));

@@ -1,10 +1,9 @@
-image: gradle:7.4.2-jdk8
+image: gradle:4.8.1-jdk8
 
 variables:
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
 before_script:
-  - cd TourGuide
   - GRADLE_USER_HOME="$(pwd)/.gradle"
   - export GRADLE_USER_HOME
 
